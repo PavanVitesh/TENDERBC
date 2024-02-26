@@ -16,3 +16,6 @@ def Register(request):
         return redirect('/register/')
     userform = UserForm()
     return render(request,'html/register.html',{'userform':userform})
+
+def Adminhome(request):
+    return render (request,'html/home.html')
