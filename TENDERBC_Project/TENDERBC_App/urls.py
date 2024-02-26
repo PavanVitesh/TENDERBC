@@ -6,6 +6,6 @@ from django.contrib.auth import views as ad
 urlpatterns = [
     path('',views.Home,name='hm'),
     path('register/',views.Register,name='rg'),
-    # path('login/',ad.LoginView.as_view(template_name="html/login.html"),name='ln'),
-    # path('logout/',ad.LogoutView.as_view(template_name="html/logout.html"),name="lo"),
+    path('login/',ad.LoginView.as_view(template_name="html/login.html"),name='ln'),
+    path('logout/',ad.LogoutView.as_view(template_name="html/logout.html"),name="lo"),
 ]

@@ -4,5 +4,8 @@
 {% block content %}
     <div class="container mt-4">
         <h1>Welcome to the Home Page!</h1>
+        {% if request.user.is_authenticated %}
+        <h1>User {{request.user.id}}</h1>
+        {% endif %}
     </div>
 {% endblock %}

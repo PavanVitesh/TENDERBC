@@ -10,16 +10,31 @@
   
     <!-- Navbar links -->
     <div class="collapse navbar-collapse" id="collapsibleNavbar">
-      <ul class="navbar-nav">
+      <ul class="navbar-nav ml-auto">
+        {% if not request.user.is_authenticated %}
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'rg' %}">Register</a>
+          <a class="nav-link {% if request.path == '/register/' %}active{% endif %}" href="{% url 'rg' %}">Register</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
+          <a class="nav-link {% if request.path == '/login/' %}active{% endif %}" href="{% url 'ln' %}">Login</a>
         </li>
+        {% else %}
         <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
+          <div class="dropdown">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
+                <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+              </svg>
+              {{request.user.username}}
+            </a>
+            <div class="dropdown-menu dropdown-menu-right">
+              <!-- <a class="dropdown-item" href="{% url 'hm' %}">Profile</a>
+              <a class="dropdown-item" href="{% url 'hm' %}">Change Password</a> -->
+              <a class="dropdown-item" href="{% url 'lo' %}">Logout</a>
+            </div>
+          </div>
         </li>
+        {% endif %}
       </ul>
     </div>
   </nav>
