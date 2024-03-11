@@ -10,6 +10,16 @@
   
     <!-- Navbar links -->
     <div class="collapse navbar-collapse" id="collapsibleNavbar">
+      <ul class="navbar-nav">
+        {% if request.user.is_authenticated %}
+          {% if request.user.is_superuser %}
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == '/Create Tender/' %}active{% endif %}" href="{% url 'ct' %}">Create Tender</a>
+          </li>
+          {% endif %}
+        {% else %}
+        {% endif %}
+      </ul>
       <ul class="navbar-nav ml-auto">
         {% if not request.user.is_authenticated %}
         <li class="nav-item">

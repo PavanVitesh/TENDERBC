@@ -1,0 +1,33 @@
+{% extends 'html/base.html' %}
+{% load static %}
+{% block title %}View Tender{% endblock %}
+{% block content %}
+    <div class="container mt-4">
+        <div class="card col-md-5 mx-auto shadow-lg">
+            <div class="card-body">
+                <table clas="table">
+                    <tr>
+                        <td class="font-weight-bold">Title</td>
+                        <td>{{details.title}}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-weight-bold">Decription</td>
+                        <td>{{details.description}}</td>
+                    </tr>
+                    <tr></tr>
+                        <td class="font-weight-bold">Company</td>
+                        <td>{{det.Company}}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-weight-bold">Start</td>
+                        <td>{{details.start_date_time}}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-weight-bold">End</td>
+                        <td>{{details.end_date_time}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

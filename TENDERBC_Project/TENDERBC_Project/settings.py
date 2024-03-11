@@ -87,9 +87,9 @@ DATABASES = {
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    # },
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
@@ -124,8 +124,8 @@ STATICFILES_DIRS = [BASE_DIR/'static']
 LOGIN_URL = 'ln'
 LOGIN_REDIRECT_URL = 'hm'
 
-MEDIA_URL = '/images/'
-MEDIA_ROOT = os.path.join(BASE_DIR/'static/images')
+MEDIA_URL = '/documents/'
+MEDIA_ROOT = os.path.join(BASE_DIR/'static/documents')
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = "smtp.gmail.com"

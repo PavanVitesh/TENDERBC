@@ -16,3 +16,11 @@ class User(AbstractUser):
     regno = models.CharField(max_length=100, null=True, blank=True)
     address = models.CharField(max_length=500, null=True, blank=True)
     establishment_year = models.IntegerField("Establishment Year", choices=get_past_20_years(), default=timezone.now().year)
+
+class Tender(models.Model):
+    title = models.CharField(max_length=100, null=False, blank=False)
+    description = models.CharField(max_length=1000, null=False, blank=False)
+    document = models.FileField(upload_to='tender documents/')
+    created_date_time = models.DateTimeField(default=timezone.now())
+    start_date_time = models.DateTimeField("Start")
+    end_date_time = models.DateTimeField("End")

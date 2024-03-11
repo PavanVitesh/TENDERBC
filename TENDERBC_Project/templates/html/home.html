@@ -3,9 +3,23 @@
 {% block title %}Home{% endblock %}
 {% block content %}
     <div class="container mt-4">
-        <h1>Welcome to the Home Page!</h1>
-        {% if request.user.is_authenticated %}
-        <h1>User {{request.user.id}}</h1>
-        {% endif %}
+        <div class="jumbotron">
+            <h1>Welcome to the Home Page!</h1>
+            {% if request.user.is_authenticated %}
+            <h1>User {{request.user.id}}</h1>
+            {% endif %}
+            <div class="row">
+                {% for i in active_tenders %}
+                <div class="card-col-md-5 bg-light mb-3 mx-2" style="border-radius: 20px">
+                    <div class="card-body">
+                        {{i.title}}<br>
+                        {{i.description}}<br>
+                        Ends: {{i.start_date_time}}<br>
+                        <a href="{% url 'vt' i.id %}" class="btn btn-outline-success">View details</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 {% endblock %}

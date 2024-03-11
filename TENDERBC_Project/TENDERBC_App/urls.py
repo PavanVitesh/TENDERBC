@@ -8,4 +8,6 @@ urlpatterns = [
     path('register/',views.Register,name='rg'),
     path('login/',ad.LoginView.as_view(template_name="html/login.html"),name='ln'),
     path('logout/',ad.LogoutView.as_view(template_name="html/logout.html"),name="lo"),
+    path('Create Tender/',views.Create_Tender,name='ct'),
+    path('View Tender/<int:x>',views.View_Tender,name='vt'),
 ]

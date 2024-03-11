@@ -1,5 +1,5 @@
 from django import forms
-from .models import User
+from .models import User, Tender
 from django.contrib.auth.forms import UserCreationForm,PasswordChangeForm
 from datetime import date
 
@@ -35,4 +35,15 @@ class UserForm(UserCreationForm):
 		"establishment_year":forms.Select(attrs={
 			"class":"form-control my-2"
         })
+		}
+
+class TenderForm(forms.ModelForm):
+    class Meta:
+        model = Tender
+        fields = ["title", "description", "document", "start_date_time", "end_date_time"]
+        widgets ={
+            "title":forms.TextInput(attrs={"class":"form-control my-2","placeholder":"Title"}),
+            "description":forms.TextInput(attrs={"class":"form-control my-2","placeholder":"description"}),
+            "start_date_time":forms.DateInput(attrs={"type":"datetime-local","class":"form-control my-2","placeholder":"End","min":date.today()}),
+            "end_date_time":forms.DateInput(attrs={"type":"datetime-local","class":"form-control my-2","placeholder":"End","min":date.today()}),
 		}
