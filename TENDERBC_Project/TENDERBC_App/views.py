@@ -3,12 +3,23 @@ from .forms import UserForm, TenderForm
 from .models import Tender
 from django.utils import timezone
 from django.contrib import messages
+from django.utils import timezone
 
 
 # Create your views here.
 def Home(request):
-    active_tenders = Tender.objects.all()
-    return render (request,'html/home.html',{"active_tenders":active_tenders})
+    tends = Tender.objects.all()
+    for i in tends:
+        print(i.start_date_time , timezone.now() , i.end_date_time)
+        if i.start_date_time <= timezone.now() <= i.end_date_time:
+            i.Status = "Active"
+            i.save()
+        elif i.end_date_time < timezone.now():
+            i.Status = "Completed"
+            i.save()
+    active_tenders = Tender.objects.filter(Status='Active')
+    inactive_tenders = Tender.objects.filter(Status='Inactive')
+    return render (request,'html/home.html',{"active_tenders":active_tenders,"inactive_tenders":inactive_tenders})
 
 def Register(request):
     if request.method == 'POST':
@@ -30,5 +41,5 @@ def Create_Tender(request):
     return render (request,'html/create_tender.html',{'ctform':ctform})
 
 def View_Tender(request,x):
-    details = Tender.objects.filter(id=x)
+    details = Tender.objects.get(id=x)
     return render(request, 'html/view_tender.html', {'details':details})
