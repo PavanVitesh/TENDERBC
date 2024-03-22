@@ -1,5 +1,5 @@
 from django import forms
-from .models import User, Tender
+from .models import User, Tender, Bid
 from django.contrib.auth.forms import UserCreationForm,PasswordChangeForm
 from datetime import date
 
@@ -47,3 +47,16 @@ class TenderForm(forms.ModelForm):
             "start_date_time":forms.DateInput(attrs={"type":"datetime-local","class":"form-control my-2","placeholder":"End","min":date.today()}),
             "end_date_time":forms.DateInput(attrs={"type":"datetime-local","class":"form-control my-2","placeholder":"End","min":date.today()}),
 		}
+
+class BidForm(forms.ModelForm):
+    class Meta:
+        model = Bid
+        fields = ["document"]
+
+class ChgPwdForm(PasswordChangeForm):
+	old_password = forms.CharField(widget=forms.PasswordInput(attrs={"class":"form-control my-2","placeholder":"Old Password"}))
+	new_password1 = forms.CharField(widget=forms.PasswordInput(attrs={"class":"form-control my-2","placeholder":"New Password"}))
+	new_password2 = forms.CharField(widget=forms.PasswordInput(attrs={"class":"form-control my-2","placeholder":"Password Again"}))
+	class Meta:
+		model = User
+		fields = "__all__"

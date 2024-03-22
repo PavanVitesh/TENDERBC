@@ -3,31 +3,84 @@
 {% block title %}View Tender{% endblock %}
 {% block content %}
     <div class="container mt-4">
-        <div class="card col-md-5 mx-auto shadow-lg">
+        <div class="card col-md-7 mx-auto shadow-lg">
             <div class="card-body">
-                <table clas="table">
-                    <tr>
-                        <td class="font-weight-bold">Title</td>
-                        <td>{{details.title}}</td>
-                    </tr>
-                    <tr>
-                        <td class="font-weight-bold">Decription</td>
-                        <td>{{details.description}}</td>
-                    </tr>
-                    <tr></tr>
-                        <td class="font-weight-bold">Company</td>
-                        <td>{{details.Company}}</td>
-                    </tr>
-                    <tr>
-                        <td class="font-weight-bold">Start</td>
-                        <td>{{details.start_date_time}}</td>
-                    </tr>
-                    <tr>
-                        <td class="font-weight-bold">End</td>
-                        <td>{{details.end_date_time}}</td>
-                    </tr>
-                </table>
+
+
+                {%if details.Status == "Inactive" %}
+                <div class="text-secondary">{{details.Status}}</div>
+                {% elif details.Status == "Active" %}
+                <div class="text-success">{{details.Status}}</div>
+                {% elif details.Status == "Completed" %}
+                <div class="text-danger">{{details.Status}}</div>
+                {% endif %}
+
+
+                <h2 class="font-weight-bold">{{details.title}}</h2>
+
+                <span>
+                    <p class="text-right"><i class="fa fa-clock-o"></i>  {{details.end_date_time}}</p>
+                </span>
+
+                <hr style="height:1.5px;border-width:0;color:gray;background-color:gray">
+
+                <p>{{details.description}}</p>
+                
+                <h6>
+                    <a href = "{% static details.document.url %}" target="_blank">Click Here</a>
+                    for tender document
+                </h6>
+
             </div>
         </div>
     </div>
+
+    {% if request.user.is_superuser %}
+        {% if details.Status == "Completed" %}
+            {% for bid in bids_submitted_to_this_tender %}
+            <div class="container mt-4">
+                <div class="card col-md-7 mx-auto shadow-lg">
+                    <div class="card-body">
+                        <h6>
+                            <a href = "{% static bid.document.url %}" target="_blank">Click Here</a>
+                            for bid document submitted by {{bid.bidder_id}}
+                        </h6>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="container mt-4">
+            <div class="card col-md-7 mx-auto shadow-lg">
+                <div class="card-body">
+                    <h5>Submitted bids will be displayed here once the tender durtion is completed</h5>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% elif alreadysubmitted %}
+    <div class="container mt-4">
+        <div class="card col-md-7 mx-auto shadow-lg">
+            <div class="card-body">
+                <h5>You have already submitted your bid to this tender</h5>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="container mt-4">
+        <div class="card col-md-7 mx-auto shadow-lg">
+            <div class="card-body">
+                <h5>Submit your BID document Here</h5>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% for i in bidsubmission %}
+                     {{i}}
+                    {% endfor %}
+                    <input type="submit" value="Submit" class="btn btn-outline-success col my-2">
+                </form>
+
+            </div>
+        </div>
+    </div>
+    {% endif %}
 {% endblock %}

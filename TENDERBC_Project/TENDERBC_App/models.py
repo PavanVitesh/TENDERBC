@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import django
 from django.utils import timezone
 
 def get_past_20_years():
@@ -22,7 +23,14 @@ class Tender(models.Model):
     title = models.CharField(max_length=100, null=False, blank=False)
     description = models.CharField(max_length=1000, null=False, blank=False)
     document = models.FileField(upload_to='tender documents/')
-    created_date_time = models.DateTimeField(default=timezone.now())
+    # created_date_time = models.DateTimeField(default=django.utils.timezone.now())
     start_date_time = models.DateTimeField("Start")
     end_date_time = models.DateTimeField("End")
     Status = models.CharField("Status", choices=sts, default='Inactive', max_length=9)
+
+class Bid(models.Model):
+    sts = (('Submitted','Submitted'),('Accpeted','Accepted'),('Rejected','Rejected'))
+    tender = models.ForeignKey(Tender,on_delete=models.CASCADE)
+    bidder = models.ForeignKey(User,on_delete=models.CASCADE)
+    document = models.FileField(upload_to='Bid documents/')
+    Status = models.CharField("Status", choices=sts, default='Submitted', max_length=9)

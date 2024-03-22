@@ -38,8 +38,8 @@
               {{request.user.username}}
             </a>
             <div class="dropdown-menu dropdown-menu-right">
-              <!-- <a class="dropdown-item" href="{% url 'hm' %}">Profile</a>
-              <a class="dropdown-item" href="{% url 'hm' %}">Change Password</a> -->
+              <a class="dropdown-item" href="{% url 'hm' %}">Profile</a>
+              <a class="dropdown-item" href="{% url 'cp' %}">Change Password</a>
               
               <form method="post" action="{% url 'lo' %}">
                 {% csrf_token %}
