@@ -19,7 +19,7 @@ class User(AbstractUser):
     establishment_year = models.IntegerField("Establishment Year", choices=get_past_20_years(), default=timezone.now().year)
 
 class Tender(models.Model):
-    sts = (('Inactive','Inactive'),('Active','Active'),('Completed','Completed'))
+    sts = (('Inactive','Inactive'),('Active','Active'),('Completed','Completed'),('Granted','Granted'))
     title = models.CharField(max_length=100, null=False, blank=False)
     description = models.CharField(max_length=1000, null=False, blank=False)
     document = models.FileField(upload_to='tender documents/')

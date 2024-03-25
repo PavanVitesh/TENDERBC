@@ -14,12 +14,13 @@ def Home(request):
         if i.start_date_time <= timezone.now() <= i.end_date_time:
             i.Status = "Active"
             i.save()
-        elif i.end_date_time < timezone.now():
+        elif i.end_date_time < timezone.now() and i.Status != "Granted":
             i.Status = "Completed"
             i.save()
     active_tenders = Tender.objects.filter(Status='Active')
     inactive_tenders = Tender.objects.filter(Status='Inactive')
-    return render (request,'html/home.html',{"active_tenders":active_tenders,"inactive_tenders":inactive_tenders})
+    completed_tenders = Tender.objects.filter(Status='Completed')
+    return render (request,'html/home.html',{"active_tenders":active_tenders,"inactive_tenders":inactive_tenders,'completed_tenders':completed_tenders})
 
 def Register(request):
     userform = UserForm()
@@ -53,6 +54,7 @@ def Create_Tender(request):
 def View_Tender(request,x):
     details = Tender.objects.get(id=x)
     if request.method == 'POST':
+        print(request.POST)
         bidsubmission = BidForm(request.POST, request.FILES)
         if bidsubmission.is_valid():
             bidsubmission = bidsubmission.save(commit=False)
@@ -68,3 +70,17 @@ def View_Tender(request,x):
             alreadysubmitted = True
             break
     return render(request, 'html/view_tender.html', {'details':details,'bidsubmission':bidsubmission,'alreadysubmitted':alreadysubmitted,'bids_submitted_to_this_tender':bids_submitted_to_this_tender})
+
+
+def Accept_Bid(request,x):
+    bid_details = Bid.objects.get(id=x)
+    tender_details = Tender.objects.get(id=bid_details.tender_id)
+    all_bids = Bid.objects.filter(tender_id=bid_details.tender_id)
+    for i in all_bids:
+        i.Status = "Rejected"
+        i.save()
+    bid_details.Status = "Accepted"
+    bid_details.save()
+    tender_details.Status = "Granted"
+    tender_details.save()
+    return redirect('../ViewTender/'+str(bid_details.tender_id))
