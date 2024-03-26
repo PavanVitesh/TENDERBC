@@ -4,9 +4,17 @@ from pypdf import PdfReader, PdfWriter
 from cryptography.hazmat.backends import default_backend
 import boto3
 from dotenv import load_dotenv
+import hashlib
 from typing import List
 
 def encrypt_file(input_file_path, tender_id, bid_id) -> List[str]:
+    """
+    Encrypt a PDF file using a randomly generated encryption key.
+    Args:
+        input_file_path (str): The path to the PDF file.
+    Returns:
+        List[str]: The path to the encrypted PDF file, the encryption key, and the new file name.
+    """
     backend = default_backend()
     encryption_key = os.urandom(32)
     pdf_writer = PdfWriter()
@@ -24,6 +32,14 @@ def encrypt_file(input_file_path, tender_id, bid_id) -> List[str]:
     return encrypted_pdf_file_path, encryption_key.hex(), new_file_name
 
 def decrypt_file(encrypted_pdf_file_path, decryption_key) -> None:
+    """
+    Decrypt a PDF file using a decryption key.
+    Args:
+        encrypted_pdf_file_path (str): The path to the encrypted PDF file.
+        decryption_key (bytes): The decryption key.
+    Returns:
+        None
+    """
     pdf_writer = PdfWriter()
     with open(encrypted_pdf_file_path, 'rb') as file:
         pdf_reader = PdfReader(file, password=decryption_key.hex())
@@ -33,6 +49,14 @@ def decrypt_file(encrypted_pdf_file_path, decryption_key) -> None:
         pdf_writer.write(file)
     
 def save_to_dstorage(file_path, file_name) -> None:
+    """
+    Save a file to the decentralized storage.
+    Args:
+        file_path (str): The path to the file.
+        file_name (str): The name of the file.
+    Returns:
+        None
+    """
     load_dotenv()
     s3 = boto3.client('s3',
                     aws_access_key_id=os.getenv('jxhifggcl6c7j3v27e3h4ett67dq'),
@@ -42,8 +66,23 @@ def save_to_dstorage(file_path, file_name) -> None:
     with open(file_path, 'rb') as file:
         s3.upload_fileobj(file, bucket_name, file_name)
 
+def calculate_checksum(file_path):
+    """
+    Calculate the checksum of a file using SHA-256 algorithm.
+    Args:
+        file_path (str): The path to the file.
+    Returns:
+        str: The checksum of the file.
+    """
+    sha256 = hashlib.sha512()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
+
 def save_dkey_to_chain(decryption_key):
     pass
+
 def retreive_from_chain(tender_id):
     pass
 
