@@ -1,0 +1,43 @@
+{% extends 'html/base.html' %}
+{% load static %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+    <div class="container mt-4">
+        <div class="card col-md-7 mx-auto shadow-lg">
+            <div class="card-body">
+                <h4 class="text-center">Profile</h4>
+                <table class="table table-responsive">
+                    <tr>
+                        <td class="font-weight-bold">Username</td>
+                        <td>{{user_details.username}}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-weight-bold">Email</td>
+                        <td>{{user_details.email}}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-weight-bold">Registration Number</td>
+                        <td>{{user_details.regno}}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-weight-bold">Mobile</td>
+                        <td>{{user_details.mobile}}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-weight-bold">Company Type</td>
+                        <td>{{user_details.company_type}}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-weight-bold">Address</td>
+                        <td>{{user_details.address}}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-weight-bold">Establishment Year</td>
+                        <td>{{user_details.establishment_year}}</td>
+                    </tr>
+                </table>
+                
+            </div>
+        </div>
+    </div>
+{% endblock %}

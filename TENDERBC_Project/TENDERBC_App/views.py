@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .forms import UserForm, TenderForm, ChgPwdForm, BidForm
-from .models import Tender, Bid
+from .models import Tender, Bid, User
 # from .forms import save_to_chain, retreive_from_chain
 from django.utils import timezone
 from django.contrib import messages
@@ -33,6 +33,10 @@ def Register(request):
             return redirect('/login/')
     return render(request,'html/register.html',{'userform':userform})
 
+def Profile(request,x):
+    user_details = User.objects.get(id=x)
+    return render (request,'html/profile.html',{'user_details':user_details})
+
 
 def Change_Password(request):
 	if request.method == "POST":
@@ -49,7 +53,7 @@ def Create_Tender(request):
         print(request.POST)
         if ctform.is_valid():
             ctform.save()
-        return redirect('/Create Tender/')
+        return redirect('/CreateTender/')
     ctform = TenderForm()
     return render (request,'html/create_tender.html',{'ctform':ctform})
 

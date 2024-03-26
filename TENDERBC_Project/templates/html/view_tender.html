@@ -43,14 +43,17 @@
                     <div class="card-body">
                         <h6>
                             <a href = "{% static bid.document.url %}" target="_blank">Click Here</a>
-                            for bid document submitted by {{bid.bidder_id}}
-                            {% if bid.Status == "Accepted" %}
-                            <span class="text-success">Accepted</span>
-                            {% elif bid.Status == "Rejected" %}
-                            <span class="text-danger">Rejected</span>
-                            {% else %}
-                            <a href="{% url 'ab' bid.id %}" class="btn btn-outline-success">Accept<i class="fa fa-check"></i></a>
-                            {% endif %}
+                            for bid document submitted by 
+                            <a href = "{%url 'pf' bid.bidder_id %}">{{bid.bidder_id}}</a>
+                            <div class="text-right">
+                                {% if bid.Status == "Accepted" %}
+                                <span class="text-success">Accepted</span>
+                                {% elif bid.Status == "Rejected" %}
+                                <span class="text-danger">Rejected</span>
+                                {% else %}
+                                <a href="{% url 'ab' bid.id %}" class="btn btn-outline-success">Accept<i class="fa fa-check"></i></a>
+                                {% endif %}
+                            </div>
                         </h6>
                     </div>
                 </div>

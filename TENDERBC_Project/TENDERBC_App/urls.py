@@ -8,6 +8,7 @@ urlpatterns = [
     path('register/',views.Register,name='rg'),
     path('login/',ad.LoginView.as_view(template_name="html/login.html"),name='ln'),
     path('logout/',ad.LogoutView.as_view(template_name="html/logout.html"),name="lo"),
+    path('profile/<int:x>',views.Profile,name='pf'),
     path('ChangePassword',views.Change_Password,name='cp'),
     path('CreateTender/',views.Create_Tender,name='ct'),
     path('ViewTender/<int:x>',views.View_Tender,name='vt'),
