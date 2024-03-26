@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import UserForm, TenderForm, ChgPwdForm, BidForm
 from .models import Tender, Bid
+from .forms import encrypt_file, save_to_dstorage, save_dkey_to_chain
 from django.utils import timezone
 from django.contrib import messages
 from django.utils import timezone
@@ -16,6 +17,7 @@ def Home(request):
             i.save()
         elif i.end_date_time < timezone.now() and i.Status != "Granted":
             i.Status = "Completed"
+            retreive_from_chain(i.id)
             i.save()
     active_tenders = Tender.objects.filter(Status='Active')
     inactive_tenders = Tender.objects.filter(Status='Inactive')
@@ -61,6 +63,9 @@ def View_Tender(request,x):
             bidsubmission.bidder_id = request.user.id
             bidsubmission.tender_id = x
             bidsubmission.save()
+            # outputpath = save_to_chain(input_path)
+            # bisubmission.document = outputpath
+            # bidsubmission.save()
         return redirect('/')
     bidsubmission = BidForm()
     alreadysubmitted = False
