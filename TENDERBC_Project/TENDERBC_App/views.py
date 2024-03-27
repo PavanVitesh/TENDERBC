@@ -67,9 +67,10 @@ def View_Tender(request,x):
             bidsubmission.bidder_id = request.user.id
             bidsubmission.tender_id = x
             bidsubmission.save()
-            # outputpath = save_to_chain(input_path)
+            # outputpath = save_to_chain(bidsubmission.document, bidsubmission.tender_id, bidsubmission.id, details.end_date_time)
             # bisubmission.document = outputpath
             # bidsubmission.save()
+            # os.remove
         return redirect('/')
     bidsubmission = BidForm()
     alreadysubmitted = False
