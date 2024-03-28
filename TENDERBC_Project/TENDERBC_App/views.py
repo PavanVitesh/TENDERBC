@@ -17,7 +17,7 @@ def Home(request):
             i.save()
         elif i.end_date_time < timezone.now() and i.Status != "Granted":
             i.Status = "Completed"
-            bid_ids = Bid.objects.filter(tender_id=gi.id).values_list('id', flat=True)
+            bid_ids = Bid.objects.filter(tender_id=i.id).values_list('id', flat=True)
             # tamper_bid_ids = retreive_from_chain(i.id, list(bid_ids))
             i.save()
     active_tenders = Tender.objects.filter(Status='Active')
