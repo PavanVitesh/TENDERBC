@@ -1,0 +1,203 @@
+-----In this project, we will be setting up a private Ethereum blockchain using Geth.-----
+-----We will be using the Proof of Authority consensus algorithm to create the blockchain.-----
+-----For simplicity, we will be creating only two nodes on the blockchain and connecting them to each other.-----
+-----The two nodes will be named node1 and node2.-----
+-----node1 will be the sealer (or the miner) and node2 will be the non-sealer (or the non-miner).-----
+-----node1 is exposed to internet via HTTP, thus it can be accessed from outside the network, and transactions can be made via it.-----
+-----node2 is not exposed to internet via HTTP, thus it can only be accessed from within the network, and transactions can be made via it.-----
+-----The blockchain will be created on the local machine.-----
+
+
+=====EACH AND EVERY COMMAND IS LISTED IN SETUP_COMMANDS.TXT FILE=====
+
+
+
+
+=> Create a directory called geth-chain (Preffered, but not mandatory) and navigate to it.
+
+mkdir geth-chain
+cd geth-chain
+
+=> Download the Geth tool from the official Go Ethereum website. The link is provided below.
+
+https://geth.ethereum.org/downloads/
+
+=> After setting up the Geth tool, create a directory called node1 and navigate to it.
+
+-Looks something like this:
+mkdir node1
+cd node1
+
+=> Create a new account for node1 using the command in SETUP_COMMANDS. Note the public key, private key (if possible) and password for the account.
+
+-Looks something like this:
+geth --datadir "./data" account new
+
+=> Create a password.txt file in the node1 directory and write the password for the account in it.
+
+-Looks something like this:
+echo "password" > password.txt
+
+=> Go back to the geth-chain directory.
+
+-Looks something like this:
+cd ..
+
+=> Create a directory called node2 and navigate to it.
+
+-Looks something like this:
+mkdir node2
+cd node2
+
+=> Create a new account for node2 using the command in SETUP_COMMANDS. Note the public key, private key (if possible) and password for the account.
+
+-Looks something like this:
+geth --datadir "./data" account new
+
+=> Create a password.txt file in the node2 directory and write the password for the account in it.
+
+-Looks something like this:
+echo "password" > password.txt
+
+=> Go back to the geth-chain directory.
+
+-Looks something like this:
+cd ..
+
+=> Create a genesis.json file in the geth-chain directory and write the genesis block configuration in it.
+
+-Looks something like this:
+{
+  "config": {
+    "chainId": 1234567,
+    "homesteadBlock": 0,
+    "eip150Block": 0,
+    "eip155Block": 0,
+    "eip158Block": 0,
+    "byzantiumBlock": 0,
+    "constantinopleBlock": 0,
+    "petersburgBlock": 0,
+    "istanbulBlock": 0,
+    "berlinBlock": 0,
+    "clique": {
+      "period": 5,
+      "epoch": 30000
+    }
+  },
+  "difficulty": "1",
+  "gasLimit": "8000000",
+  "extradata": "0x0000000000000000000000000000000000000000000000000000000000000000329212c54fF70Ada5C04c2E15D8Af37659657f3c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "alloc": {
+    "329212c54fF70Ada5C04c2E15D8Af37659657f3c": { "balance": "3000000000000000000000" },
+    "7ca8Ea89de99b8983Dfe85D4F0E1CF2E83E9480d": { "balance": "3000000000000000000000" }
+  }
+}
+
+=> Navigate to the node1 directory, and initialize the blockchain for node1 using the command in SETUP_COMMANDS.
+
+-Looks something like this:
+cd node1
+geth --datadir "./data" init "../genesis.json"
+
+=> Go back to the geth-chain directory.
+
+-Looks something like this:
+cd ..
+
+=> Navigate to the node2 directory, and initialize the blockchain for node2 using the command in SETUP_COMMANDS.
+
+-Looks something like this:
+cd node2
+geth --datadir "./data" init "../genesis.json"
+
+=> Go back to the geth-chain directory.
+
+-Looks something like this:
+cd ..
+
+=> Now, create a directory called bootnode and navigate to it.
+
+-Looks something like this:
+mkdir bootnode
+cd bootnode
+
+=> Create a bootnode using the command in SETUP_COMMANDS.
+
+-Looks something like this:
+bootnode -genkey boot.key
+
+=> Create a bootnode enode using the command in SETUP_COMMANDS. Note the enode generated for the bootnode.
+
+-Looks something like this:
+bootnode -nodekey boot.key -verbosity 7 -addr "127.0.0.1:30301"
+
+=> Create a new terminal window, and navigate to the geth-chain directory.
+
+-Looks something like this:
+cd PATH/TO/geth-chain
+
+=> Navigate to the node1 directory, and start the blockchain for node1 using the command in SETUP_COMMANDS.
+
+-Looks something like this:
+cd node1
+geth --datadir "./data"  --port 30304 --bootnodes enode://7b3c71e69929c5eaacbc5d5c606cf38c87b1b2b7d89348c8024c6df0695bb10559de3f705f1eab7291f91054aabc322f3d60fd2aa56553dc0d2d670db48fab0c@127.0.0.1:0?discport=30301 --authrpc.port 8547 --ipcdisable --allow-insecure-unlock  --http --http.corsdomain="https://remix.ethereum.org" --http.api web3,eth,debug,personal,net --networkid 1234567 --unlock 0x329212c54fF70Ada5C04c2E15D8Af37659657f3c --password password.txt --mine --miner.etherbase=0x329212c54fF70Ada5C04c2E15D8Af37659657f3c
+
+=> Go back to the geth-chain directory.
+
+-Looks something like this:
+cd ..
+
+=> Create a new terminal window, and navigate to the geth-chain directory.
+
+-Looks something like this:
+cd PATH/TO/geth-chain
+
+=> Navigate to the node2 directory, and start the blockchain for node2 using the command in SETUP_COMMANDS.
+
+-Looks something like this:
+cd node2
+geth --datadir "./data"  --port 30306 --bootnodes enode://7b3c71e69929c5eaacbc5d5c606cf38c87b1b2b7d89348c8024c6df0695bb10559de3f705f1eab7291f91054aabc322f3d60fd2aa56553dc0d2d670db48fab0c@127.0.0.1:0?discport=30301 --authrpc.port 8546 --networkid 1234567 --unlock 0x7ca8Ea89de99b8983Dfe85D4F0E1CF2E83E9480d --password password.txt
+
+=> The Block Chain is now set up. Transactions can be made using the node1 and node2 terminals.-----
+=> The blockchain can be accessed via the node1 terminal from outside the network (via http://localhost:8545)-----
+=> Three terminal windows are required to run the blockchain. One for the bootnode, one for node1 and one for node2.-----
+=> The blockchain can be stopped by closing the terminal windows.-----
+=> The blockchain can be restarted by below steps.-----
+
+=> Create a new terminal window, and navigate to the geth-chain directory.
+
+-Looks something like this:
+cd PATH/TO/geth-chain
+
+=> Navigate to the bootnode directory, and start the bootnode using the command in SETUP_COMMANDS.
+
+-Looks something like this:
+cd bootnode
+bootnode -nodekey boot.key -verbosity 7 -addr "
+
+=> Create a new terminal window, and navigate to the geth-chain directory.
+
+-Looks something like this:
+cd PATH/TO/geth-chain
+
+=> Navigate to the node1 directory, and start the blockchain for node1 using the command in SETUP_COMMANDS.
+
+-Looks something like this:
+cd node1
+geth --datadir "./data"  --port 30304 --bootnodes enode://7b3c71e69929c5eaacbc5d5c606cf38c87b1b2b7d89348c8024c6df0695bb10559de3f705f1eab7291f91054aabc322f3d60fd2aa56553dc0d2d670db48fab0c@127.0.0.1:0?discport=30301 --authrpc.port 8547 --ipcdisable --allow-insecure-unlock  --http --http.corsdomain="https://remix.ethereum.org" --http.api web3,eth,debug,personal,net --networkid 1234567 --unlock 0x329212c54fF70Ada5C04c2E15D8Af37659657f3c --password password.txt --mine --miner.etherbase=0x329212c54fF70Ada5C04c2E15D8Af37659657f3c
+
+=> Go back to the geth-chain directory.
+
+-Looks something like this:
+cd ..
+
+=> Create a new terminal window, and navigate to the geth-chain directory.
+
+-Looks something like this:
+cd PATH/TO/geth-chain
+
+=> Navigate to the node2 directory, and start the blockchain for node2 using the command in SETUP_COMMANDS.
+
+-Looks something like this:
+cd node2
+geth --datadir "./data"  --port 30306 --bootnodes enode://7b3c71e69929c5eaacbc5d5c606cf38c87b1b2b7d89348c8024c6df0695bb10559de3f705f1eab7291f91054aabc322f3d60fd2aa56553dc0d2d670db48fab0c@127.0.0.1:0?discport=30301 --authrpc.port 8546 --networkid 1234567 --unlock 0x7ca8Ea89de99b8983Dfe85D4F0E1CF2E83E9480d --password password.txt
