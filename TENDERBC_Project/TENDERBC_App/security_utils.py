@@ -96,7 +96,7 @@ def get_from_dstorage(file_name: str) -> str:
     with open(file_path, 'wb') as file:
         s3.download_fileobj(bucket_name, file_path + file_name, file)
 
-def calculate_checksum(file_path: str):
+def calculate_checksum(file_path: str) -> str:
     """
     Calculate the checksum of a file using SHA-256 algorithm.
     Args:
@@ -145,14 +145,11 @@ def add_tender_data_to_chain(tender_id: int, start_time:datetime, end_time: date
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         decoded_logs = contract.events.TenderCreated().process_receipt(tx_receipt)
         if decoded_logs:
-            retreived_tender_id = decoded_logs[0]['args']['tenderId']
-            created_time = decoded_logs[0]['args']['createdTime']
-            retreived_start_time = decoded_logs[0]['args']['startTime']
-            retreived_end_time = decoded_logs[0]['args']['endTime']
-            print("Tender ID:", retreived_tender_id)
-            print("Created Time:", created_time)
-            print("Start Time:", retreived_start_time)
-            print("End Time:", retreived_end_time)
+            # retreived_tender_id = decoded_logs[0]['args']['tenderId']
+            # created_time = decoded_logs[0]['args']['createdTime']
+            # retreived_start_time = decoded_logs[0]['args']['startTime']
+            # retreived_end_time = decoded_logs[0]['args']['endTime']
+            pass
         else:
             print("No event logs found for TenderCreated")
     except Web3Exceptions.ContractLogicError as e:
@@ -175,10 +172,9 @@ def save_dkey_checksum_to_chain(tender_id: int, bidder_id: int, dkey: str, check
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         decoded_logs = contract.events.BidAdded().process_receipt(tx_receipt)
         if decoded_logs:
-            retreived_tender_id = decoded_logs[0]['args']['tenderId']
-            retreived_bidder_id = decoded_logs[0]['args']['bidderId']
-            print("Tender ID:", retreived_tender_id)
-            print("Bid ID:", retreived_bidder_id)
+            # retreived_tender_id = decoded_logs[0]['args']['tenderId']
+            # retreived_bidder_id = decoded_logs[0]['args']['bidderId']
+            pass
         else:
             print("No event logs found for BidAdded")
     except Web3Exceptions.ContractLogicError as e:
@@ -186,48 +182,60 @@ def save_dkey_checksum_to_chain(tender_id: int, bidder_id: int, dkey: str, check
     except Exception as e:
         print(e)
 
-def retreive_bidder_dkey_from_chain(tender_id: int, bidder_id: int, checksum: str) -> str:
+def retreive_bidder_dkey_from_chain(tender_id: int, bidder_id: int, checksum: str) -> int:
+    """
+    Retrieve the decryption key from the blockchain.
+    Args:
+        tender_id (int): The ID of the tender.
+        bidder_id (int): The ID of the bidder.
+        checksum (str): The checksum of the file.
+    Returns:
+        int: The bidder ID if the corresponding checksum is not correct.
+    """
     try:
         w3, contract = connect_to_chain()
         tx_hash = contract.functions.retrieveDKey(tender_id, bidder_id, checksum).transact()
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         decoded_logs = contract.events.BidderKeyRetrieved().process_receipt(tx_receipt)
+        illegal_bidder_id = None
         if decoded_logs:
             retreived_tender_id = decoded_logs[0]['args']['tenderId']
             retreived_bidder_id = decoded_logs[0]['args']['bidderId']
-            retreived_checksum = decoded_logs[0]['args']['checksum']
+            # retreived_checksum = decoded_logs[0]['args']['checksum']
             dkey = decoded_logs[0]['args']['dKey']
-            print("Tender ID:", retreived_tender_id)
-            print("Bidder ID:", retreived_bidder_id)
-            print("Decryption Key:", dkey)
-            print("Original Checksum:", retreived_checksum)
-            print("Current Checksum:", checksum)
             if dkey:
                 get_from_dstorage(f'{retreived_tender_id}-{retreived_bidder_id}.pdf')
                 decrypt_file(f'{retreived_tender_id}-{retreived_bidder_id}.pdf', dkey)
+            else:
+                illegal_bidder_id = retreived_bidder_id
         else:
             print("No event logs found for BidderKeyRetrieved")
-        return dkey
+        return illegal_bidder_id
     except Web3Exceptions.ContractLogicError as e:
         print(e)
     except Exception as e:
         print(e)
 
-def retreive_tender_dkeys_from_chain(tender_id: int, bidder_ids: List[int], checksums: List[str]) -> List[str]:
+def retreive_tender_dkeys_from_chain(tender_id: int, bidder_ids: List[int], checksums: List[str]) -> List[int]:
+    """
+    Retrieve the decryption keys from the blockchain.
+    Args:
+        tender_id (int): The ID of the tender.
+        bidder_ids (List[int]): The list of bidder IDs.
+        checksums (List[str]): The list of checksums.
+    Returns:
+        List[str]: The list of bidder IDs if their corresponding checksums are not correct.
+    """
     try:
         w3, contract = connect_to_chain()
-        tx_hash = contract.functions.retrieveDKeysForTender(2, [1, 2], ["ca", "ba"]).transact()
+        tx_hash = contract.functions.retrieveDKeysForTender(tender_id, bidder_ids, checksums).transact()
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         decoded_logs = contract.events.TenderKeysRetrieved().process_receipt(tx_receipt)
         illegal_bidder_ids = []
         if decoded_logs:
             retreived_tender_id = decoded_logs[0]['args']['tenderId']
-            retreived_checksums = decoded_logs[0]['args']['checksums']
+            # retreived_checksums = decoded_logs[0]['args']['checksums']
             dkeys = decoded_logs[0]['args']['dKeys']
-            print("Tender ID:", retreived_tender_id)
-            print("Decryption Keys:", dkeys)
-            print("Original Checksums:", retreived_tender_id)
-            print("Current Checksums:", checksums)
             for i in range(len(bidder_ids)):
                 if dkeys[i]:
                     get_from_dstorage(f'{retreived_tender_id}-{bidder_ids[i]}.pdf')
@@ -242,7 +250,16 @@ def retreive_tender_dkeys_from_chain(tender_id: int, bidder_ids: List[int], chec
     except Exception as e:
         print(e)
     
-def save_to_chain(input_path, tender_id, bidder_id):
+def save_to_chain(input_path: str, tender_id: int, bidder_id: int) -> str:
+    """
+    Save the encrypted file to the blockchain.
+    Args:
+        input_path (str): The path to the file.
+        tender_id (int): The ID of the tender.
+        bidder_id (int): The ID of the bidder.
+    Returns:
+        str: The path to the encrypted file.
+    """
     outputpath, dkey, file_name_on_dstorage = encrypt_file(input_path, tender_id, bidder_id)
     save_to_dstorage(outputpath, file_name_on_dstorage)
     checksum = calculate_checksum(outputpath)
