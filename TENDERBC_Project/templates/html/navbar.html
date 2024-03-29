@@ -29,6 +29,15 @@
           <a class="nav-link {% if request.path == '/login/' %}active{% endif %}" href="{% url 'ln' %}">Login</a>
         </li>
         {% else %}
+          {% if request.user.is_superuser %}
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == '/PastTenders/' %}active{% endif %}" href="{% url 'pts' %}"><i class="fa fa-history" aria-hidden="true"></i></a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == '/PastBids/' %}active{% endif %}" href="{% url 'pbs' %}"><i class="fa fa-history" aria-hidden="true"></i></a>
+          </li>
+          {% endif %}
         <li class="nav-item">
           <div class="dropdown">
             <a class="nav-link dropdown-toggle" data-toggle="dropdown">

@@ -11,7 +11,6 @@ from django.utils import timezone
 def Home(request):
     tends = Tender.objects.all()
     for i in tends:
-        print(i.start_date_time , timezone.now() , i.end_date_time)
         if i.start_date_time <= timezone.now() <= i.end_date_time:
             i.Status = "Active"
             i.save()
@@ -79,8 +78,21 @@ def View_Tender(request,x):
     for  i in bids_submitted_to_this_tender:
         if i.bidder_id == request.user.id:
             alreadysubmitted = True
+            my_bid = i
             break
-    return render(request, 'html/view_tender.html', {'details':details,'bidsubmission':bidsubmission,'alreadysubmitted':alreadysubmitted,'bids_submitted_to_this_tender':bids_submitted_to_this_tender})
+    return render(request, 'html/view_tender.html', {'details':details,'bidsubmission':bidsubmission,'alreadysubmitted':alreadysubmitted,'bids_submitted_to_this_tender':bids_submitted_to_this_tender,'my_bid':my_bid})
+
+
+def Past_Tenders(request):
+    completed_tendrs = Tender.objects.filter(Status="Completed")
+    granted_tenders = Tender.objects.filter(Status="Granted")
+    return render(request, 'html/past_tenders.html',{'completed_tendrs':completed_tendrs,'granted_tenders':granted_tenders})
+
+def Past_Bids(request):
+    list_tenders = list(Bid.objects.filter(bidder_id=request.user.id).values_list('tender_id', flat=True))
+    submitted_tenders = Tender.objects.filter(id__in=list_tenders)
+    return render(request, 'html/past_bids.html',{'submitted_tenders':submitted_tenders})
+
 
 
 def Accept_Bid(request,x):

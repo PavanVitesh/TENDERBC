@@ -12,5 +12,7 @@ urlpatterns = [
     path('ChangePassword',views.Change_Password,name='cp'),
     path('CreateTender/',views.Create_Tender,name='ct'),
     path('ViewTender/<int:x>',views.View_Tender,name='vt'),
+    path('PastTenders/',views.Past_Tenders,name='pts'),
+    path('PastBids/',views.Past_Bids,name='pbs'),
     path('AcceptBid/<int:x>',views.Accept_Bid,name='ab'),
 ]

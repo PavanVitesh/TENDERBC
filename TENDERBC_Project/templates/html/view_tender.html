@@ -69,13 +69,33 @@
         </div>
         {% endif %}
     {% elif alreadysubmitted %}
-    <div class="container mt-4">
-        <div class="card col-md-7 mx-auto shadow-lg">
-            <div class="card-body">
-                <h5>You have already submitted your bid to this tender</h5>
+        {% if details.Status == "Completed" or details.Status == "Granted" %}
+        <div class="container mt-5">
+            <div class="card col-md-7 mx-auto shadow-lg">
+                <div class="card-body">
+                    <h6>
+                        <a href = "{% static my_bid.document.url %}" target="_blank">Click Here</a>
+                        for the submitted bid document
+                        <div class="text-right">
+                            {% if my_bid.Status == "Accepted" %}
+                            <span class="text-success">Accepted</span>
+                            {% elif my_bid.Status == "Rejected" %}
+                            <span class="text-danger">Rejected</span>
+                            {% endif %}
+                        </div> 
+                    </h6>
+                </div>
             </div>
         </div>
-    </div>
+        {% else %}
+        <div class="container mt-4">
+            <div class="card col-md-7 mx-auto shadow-lg">
+                <div class="card-body">
+                    <h5>You have already submitted your bid to this tender</h5>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     {% else %}
     <div class="container mt-4">
         <div class="card col-md-7 mx-auto shadow-lg">
