@@ -1,0 +1,211 @@
+[
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tenderId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "bidderId",
+				"type": "uint256"
+			}
+		],
+		"name": "BidAdded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tenderId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "bidderId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "externalChecksum",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "dKey",
+				"type": "string"
+			}
+		],
+		"name": "BidderKeyRetrieved",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tenderId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_startTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_endTime",
+				"type": "uint256"
+			}
+		],
+		"name": "createTender",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tenderId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_bidderId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_dKey",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_checksum",
+				"type": "string"
+			}
+		],
+		"name": "placeBid",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tenderId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_bidderId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_checksum",
+				"type": "string"
+			}
+		],
+		"name": "retrieveDKey",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tenderId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "_bidderIds",
+				"type": "uint256[]"
+			},
+			{
+				"internalType": "string[]",
+				"name": "_checksums",
+				"type": "string[]"
+			}
+		],
+		"name": "retrieveDKeysForTender",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tenderId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "createdTime",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "startTime",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "endTime",
+				"type": "uint256"
+			}
+		],
+		"name": "TenderCreated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tenderId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256[]",
+				"name": "bidderIds",
+				"type": "uint256[]"
+			},
+			{
+				"indexed": false,
+				"internalType": "string[]",
+				"name": "externalChecksums",
+				"type": "string[]"
+			},
+			{
+				"indexed": false,
+				"internalType": "string[]",
+				"name": "dKeys",
+				"type": "string[]"
+			}
+		],
+		"name": "TenderKeysRetrieved",
+		"type": "event"
+	}
+]

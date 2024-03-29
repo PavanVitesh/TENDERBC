@@ -1,0 +1,84 @@
+-----COMMANDS GIVEN WORKS IN POWERSHELL-----
+
+# To create a directory for the Node, run the below command
+mkdir direcotry-name
+
+
+# To move to a sub-directory in the current-directory, run the below command
+cd sub-directory-name
+
+
+# To move to the parent directory of the current directory, run the below command
+cd ..
+
+
+# To create an account for the current Node (make sure to be in the current Node directory), run the below command and set a strong pasword
+geth --datadir "./data" account new
+# Note the public key, private key (if possible) and password for the account
+
+
+# Below is the Genesis File Format for the chain
+{
+  "config": {
+    "chainId": { CHAIN_ID },
+    "homesteadBlock": 0,
+    "eip150Block": 0,
+    "eip155Block": 0,
+    "eip158Block": 0,
+    "byzantiumBlock": 0,
+    "constantinopleBlock": 0,
+    "petersburgBlock": 0,
+    "istanbulBlock": 0,
+    "berlinBlock": 0,
+    "clique": {
+      "period": 5,
+      "epoch": 30000
+    }
+  },
+  "difficulty": "1",
+  "gasLimit": "8000000",
+  "extradata": "0x0000000000000000000000000000000000000000000000000000000000000000{ INITIAL_SIGNER_ADDRESS }0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "alloc": {
+    "{ FIRST_NODE_ADDRESS }": { "balance": "{ ETHER_AMOUNT }" },
+    "{ SECOND_NODE_ADDRESS }": { "balance": "{ EHTER_AMOUNT }" }
+  }
+}
+
+# CHAIN_ID = 1234567 (Preferred, it can be any number in range other than reserved Chain IDs)
+# FIRST_NODE_ADDRESS = [Public_Key of Node #1][2:] (i.e., without '0x')
+# SECOND_NODE_ADDRESS = [Public_Key][2:] (i.e., without '0x')
+# INITIAL_SIGNER_ADDRESS = FIRST_NODE_ADDRESS (Preferred, it an be any of the node's address)
+
+
+# To create Boot Key (make sure to be in the bootnode directory), below is the command 
+bootnode -genkey { NAME_OF_THE_KEY }.key
+# NAME_OF_THE_KEY = boot (Preferred, can be of any name)
+
+
+# To start Boot Node (make sure to be in the bootnode directory), below is the command
+bootnode -nodekey { KEY_NAME } -verbosity 7 -addr "127.0.0.1:{PORT}"
+# PORT = 30301 {Preferred, Can be any unused PORT}
+# Save the value of enode address => enode://{VALUE}
+
+
+# To start a node with the following abilities:
+  - Mining (Add '--mine --miner.etherbase= { SIGNER_ADDRESS }' to the geth command)
+  - Connection to Remix IDE (for Contract Deploying) (Add '--http --http.corsdomain="https://remix.ethereum.org" --http.api web3,eth,debug,personal,net' to the geth command)
+# below is the command to start first node:
+geth --datadir "./data"  --port {PORT} --bootnodes enode://{ENODE_ADDRESS_VALUE} --authrpc.port 8547 --ipcdisable --allow-insecure-unlock  --http --http.corsdomain="https://remix.ethereum.org" --http.api web3,eth,debug,personal,net --networkid { NETWORK_ID } --unlock { ADDRESS_NODE1 } --password { PASSWORD_FILE_NAME_EXTENSION }  --mine --miner.etherbase= { SIGNER_ADDRESS }
+# PORT = 30305 {Preferred, Can be any unused PORT}
+# ENODE_ADDRESS_VALUE= Value generated on running the Boot Node
+# NETWORK_ID = 1234567 (Preferred, Can be of any number in range other than reserved Chain IDs)
+# SIGNER_ADDRESS = Public_Key of Node #1
+# ADDRESS_NODE1 = Public_Key of Node #1
+# PASSWORD_FILE_NAME_EXTENSION = password.txt (Name given to password file in Node #1 directory)
+
+
+# For a normal node, below is the command
+geth --datadir "./data"  --port {PORT} --bootnodes enode://{ YOUR_VALUE }  -authrpc.port 8546 --networkid { NETWORK_ID } --unlock { ADDRESS_NODE_N } --password { PASSWORD_FILE_WITH_EXTENSION }
+# PORT = 30306 {Preferred, Can be any unused PORT}
+# ENODE_ADDRESS_VALUE= Value generated on running the Boot Node
+# NETWORK_ID = 1234567 (Preferred, Can be of any number in range other than reserved Chain IDs)
+# SIGNER_ADDRESS = Public_Key of the Node #N
+# ADDRESS_NODE_N = Public_Key of the Node #N
+# PASSWORD_FILE_NAME_EXTENSION = password.txt (Name given to password file in Node #N directory)
