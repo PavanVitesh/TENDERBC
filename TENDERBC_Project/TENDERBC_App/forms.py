@@ -1,7 +1,7 @@
 from django import forms
 from .models import User, Tender, Bid
 from django.contrib.auth.forms import UserCreationForm,PasswordChangeForm
-from datetime import date
+from datetime import datetime
 
 class UserForm(UserCreationForm):
 	password1 = forms.CharField(widget=forms.PasswordInput(attrs={"class":"form-control my-2","placeholder":"Password"}))
@@ -44,8 +44,8 @@ class TenderForm(forms.ModelForm):
         widgets ={
             "title":forms.TextInput(attrs={"class":"form-control my-2","placeholder":"Title"}),
             "description":forms.TextInput(attrs={"class":"form-control my-2","placeholder":"description"}),
-            "start_date_time":forms.DateInput(attrs={"type":"datetime-local","class":"form-control my-2","placeholder":"End","min":date.today()}),
-            "end_date_time":forms.DateInput(attrs={"type":"datetime-local","class":"form-control my-2","placeholder":"End","min":date.today()}),
+            "start_date_time":forms.DateInput(attrs={"type":"datetime-local","class":"form-control my-2","placeholder":"End","min":datetime.today()}),
+            "end_date_time":forms.DateInput(attrs={"type":"datetime-local","class":"form-control my-2","placeholder":"End","min":datetime.today()}),
 		}
 
 class BidForm(forms.ModelForm):

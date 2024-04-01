@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import UserForm, TenderForm, ChgPwdForm, BidForm
 from .models import Tender, Bid, User
-from .security_utils import save_to_chain, retreive_from_chain
+from .security_utils import save_to_chain, add_tender_data_to_chain, retreive_tender_dkeys_from_chain
 from django.utils import timezone
 from django.contrib import messages
 from django.utils import timezone
@@ -17,7 +17,7 @@ def Home(request):
         elif i.end_date_time < timezone.now() and i.Status != "Granted":
             i.Status = "Completed"
             bid_ids = Bid.objects.filter(tender_id=i.id).values_list('id', flat=True)
-            tamper_bid_ids = retreive_from_chain(i.id, list(bid_ids))
+            # tamper_bid_ids = retreive_from_chain(i.id, list(bid_ids))
             i.save()
     active_tenders = Tender.objects.filter(Status='Active')
     inactive_tenders = Tender.objects.filter(Status='Inactive')
@@ -52,7 +52,14 @@ def Create_Tender(request):
         ctform=TenderForm(request.POST, request.FILES)
         print(request.POST)
         if ctform.is_valid():
-            ctform.save()
+            ctform = ctform.save()
+            try: 
+                add_tender_data_to_chain(ctform.id, ctform.start_date_time, ctform.end_date_time)
+            except Exception as e: 
+                ctform.delete()
+                print(e) 
+                return redirect('/CreateTender/')
+            
         return redirect('/CreateTender/')
     ctform = TenderForm()
     return render (request,'html/create_tender.html',{'ctform':ctform})
@@ -64,21 +71,31 @@ def View_Tender(request,x):
         bidsubmission = BidForm(request.POST, request.FILES)
         if bidsubmission.is_valid():
             bidsubmission = bidsubmission.save(commit=False)
+            outputpath = save_to_chain(str(bidsubmission.document), x, request.user.id)
             bidsubmission.bidder_id = request.user.id
             bidsubmission.tender_id = x
+            bidsubmission.document = 'Bid documents/' + outputpath
             bidsubmission.save()
-            outputpath = save_to_chain(bidsubmission.document, bidsubmission.tender_id, bidsubmission.id, details.end_date_time)
-            bisubmission.document = outputpath
-            bidsubmission.save()
+            print(bidsubmission.document)
         return redirect('/')
     bidsubmission = BidForm()
     alreadysubmitted = False
+    print(x, list(Bid.objects.filter(tender_id=x).values_list('bidder_id', flat=True)))
+    tampered_bidder_ids = retreive_tender_dkeys_from_chain(x, list(Bid.objects.filter(tender_id=x).values_list('bidder_id', flat=True)))
+    print(tampered_bidder_ids)
+    if not tampered_bidder_ids:
+        tampered_bidder_ids = []
     bids_submitted_to_this_tender = Bid.objects.filter(tender_id=x)
+    my_bid = None
     for  i in bids_submitted_to_this_tender:
         if i.bidder_id == request.user.id:
             alreadysubmitted = True
             my_bid = i
             break
+        if i.bidder_id in tampered_bidder_ids:
+            i.Status = "Ignored"
+            i.save()
+
     return render(request, 'html/view_tender.html', {'details':details,'bidsubmission':bidsubmission,'alreadysubmitted':alreadysubmitted,'bids_submitted_to_this_tender':bids_submitted_to_this_tender,'my_bid':my_bid})
 
 
@@ -91,7 +108,6 @@ def Past_Bids(request):
     list_tenders = list(Bid.objects.filter(bidder_id=request.user.id).values_list('tender_id', flat=True))
     submitted_tenders = Tender.objects.filter(id__in=list_tenders)
     return render(request, 'html/past_bids.html',{'submitted_tenders':submitted_tenders})
-
 
 
 def Accept_Bid(request,x):

@@ -22,19 +22,20 @@ def encrypt_file(input_file_path: str, tender_id: str, bid_id: str) -> List[str]
     Returns:
         List[str]: The path to the encrypted PDF file, the encryption key, and the new file name.
     """
+    load_dotenv()
     backend = default_backend()
     encryption_key = os.urandom(32)
     pdf_writer = PdfWriter()
-    pdf_file_path = fr'{input_file_path}'
+    pdf_file_path = fr'{os.getenv('BID_DOCUMENTS_PATH')}{input_file_path}'
     with open(pdf_file_path, 'rb') as file:
         pdf_reader = PdfReader(file)
         for page_num in range(len(pdf_reader.pages)):
             pdf_writer.add_page(pdf_reader.pages[page_num])
         pdf_writer.encrypt(user_password=encryption_key.hex(), algorithm='AES-256')
-    file_name = re.search(pattern=r'[^\\]+\.pdf', string=input_file_path).group(0)
+    file_name = re.search(r'[^/]+\.pdf', pdf_file_path).group(0)
     new_file_name =  str(tender_id) + '-' + str(bid_id) + '.pdf'
-    encrypted_pdf_file_path = pdf_file_path[:-len(file_name)] + new_file_name
-    with open(encrypted_pdf_file_path, 'wb') as file:
+    encrypted_pdf_file_path = new_file_name
+    with open(os.getenv('BID_DOCUMENTS_PATH') + encrypted_pdf_file_path, 'wb') as file:
         pdf_writer.write(file)
     return encrypted_pdf_file_path, encryption_key.hex(), new_file_name
 
@@ -48,11 +49,11 @@ def decrypt_file(encrypted_pdf_file_path: str, decryption_key: str) -> None:
         None
     """
     pdf_writer = PdfWriter()
-    with open(encrypted_pdf_file_path, 'rb') as file:
-        pdf_reader = PdfReader(file, password=decryption_key.hex())
+    with open(os.getenv('BID_DOCUMENTS_PATH') + encrypted_pdf_file_path, 'rb') as file:
+        pdf_reader = PdfReader(file, password=decryption_key)
         for page_num in range(len(pdf_reader.pages)):
             pdf_writer.add_page(pdf_reader.pages[page_num])
-    with open(encrypted_pdf_file_path, 'wb') as file:
+    with open(os.getenv('BID_DOCUMENTS_PATH') + encrypted_pdf_file_path, 'wb') as file:
         pdf_writer.write(file)
     
 def connect_to_dstorage() -> boto3.client:
@@ -77,9 +78,10 @@ def save_to_dstorage(file_path: str, file_name: str) -> None:
     Returns:
         None
     """
+    load_dotenv()
     s3 = connect_to_dstorage()
     bucket_name = 'tender-bucket'
-    with open(file_path, 'rb') as file:
+    with open(os.getenv('BID_DOCUMENTS_PATH') + file_path, 'rb') as file:
         s3.upload_fileobj(file, bucket_name, file_name)
 
 def get_from_dstorage(file_name: str) -> str:
@@ -90,11 +92,14 @@ def get_from_dstorage(file_name: str) -> str:
     Returns:
         str: The path to the file.
     """
+    load_dotenv()
     s3 = connect_to_dstorage()
     bucket_name = 'tender-bucket'
-    file_path = os.getenv('BID_DOCUMENTS_PATH')
+    file_path = os.getenv('BID_DOCUMENTS_PATH') + file_name
+    print(file_path)
     with open(file_path, 'wb') as file:
-        s3.download_fileobj(bucket_name, file_path + file_name, file)
+        s3.download_fileobj(bucket_name, file_name, file)
+    print("safe")
 
 def calculate_checksum(file_path: str) -> str:
     """
@@ -105,9 +110,10 @@ def calculate_checksum(file_path: str) -> str:
         str: The checksum of the file.
     """
     sha256 = hashlib.sha512()
-    with open(file_path, "rb") as f:
+    with open(os.getenv('BID_DOCUMENTS_PATH') + file_path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             sha256.update(chunk)
+    print(sha256.hexdigest())
     return sha256.hexdigest()
 
 def connect_to_chain() -> List[str]:
@@ -117,6 +123,7 @@ def connect_to_chain() -> List[str]:
         List[str]: The Web3 object and the contract object.
     """
     try:
+        load_dotenv()
         w3 = Web3(Web3.HTTPProvider(os.getenv('GETH_NODE_ENDPOINT_URL')))
         w3.middleware_onion.inject(geth_poa_middleware, layer=0)
         contract_abi = None
@@ -124,7 +131,7 @@ def connect_to_chain() -> List[str]:
             contract_abi = json.load(f)
         contract_address = os.getenv('CONTRACT_ADDRESS')
         contract = w3.eth.contract(contract_address, abi=contract_abi)
-        w3.eth.default_account = w3.eth.accounts[1]
+        w3.eth.default_account = w3.eth.accounts[0]
         return w3, contract
     except Exception as e:
         raise e
@@ -141,19 +148,21 @@ def add_tender_data_to_chain(tender_id: int, start_time:datetime, end_time: date
     """
     try:
         w3, contract = connect_to_chain()
-        tx_hash = contract.functions.createTender(tender_id, start_time.timestamp, end_time.timestamp).transact()
+        tx_hash = contract.functions.createTender(tender_id, int(start_time.timestamp()), int(end_time.timestamp())).transact()
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         decoded_logs = contract.events.TenderCreated().process_receipt(tx_receipt)
         if decoded_logs:
-            # retreived_tender_id = decoded_logs[0]['args']['tenderId']
+            retreived_tender_id = decoded_logs[0]['args']['tenderId']
             # created_time = decoded_logs[0]['args']['createdTime']
             # retreived_start_time = decoded_logs[0]['args']['startTime']
             # retreived_end_time = decoded_logs[0]['args']['endTime']
+            print(retreived_tender_id)
             pass
         else:
             print("No event logs found for TenderCreated")
     except Web3Exceptions.ContractLogicError as e:
         print(e)
+        raise e
 
 def save_dkey_checksum_to_chain(tender_id: int, bidder_id: int, dkey: str, checksum: str) -> None:
     """
@@ -179,8 +188,10 @@ def save_dkey_checksum_to_chain(tender_id: int, bidder_id: int, dkey: str, check
             print("No event logs found for BidAdded")
     except Web3Exceptions.ContractLogicError as e:
         print(e)
+        raise e
     except Exception as e:
         print(e)
+        raise e
 
 def retreive_bidder_dkey_from_chain(tender_id: int, bidder_id: int, checksum: str) -> int:
     """
@@ -216,7 +227,7 @@ def retreive_bidder_dkey_from_chain(tender_id: int, bidder_id: int, checksum: st
     except Exception as e:
         print(e)
 
-def retreive_tender_dkeys_from_chain(tender_id: int, bidder_ids: List[int], checksums: List[str]) -> List[int]:
+def retreive_tender_dkeys_from_chain(tender_id: int, bidder_ids: List[int]) -> List[int]:
     """
     Retrieve the decryption keys from the blockchain.
     Args:
@@ -228,6 +239,9 @@ def retreive_tender_dkeys_from_chain(tender_id: int, bidder_ids: List[int], chec
     """
     try:
         w3, contract = connect_to_chain()
+        checksums = [calculate_checksum(f'{tender_id}-{bidder_id}.pdf') for bidder_id in bidder_ids]
+        print(tender_id, type(tender_id))
+        print(checksums)
         tx_hash = contract.functions.retrieveDKeysForTender(tender_id, bidder_ids, checksums).transact()
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         decoded_logs = contract.events.TenderKeysRetrieved().process_receipt(tx_receipt)
@@ -236,8 +250,9 @@ def retreive_tender_dkeys_from_chain(tender_id: int, bidder_ids: List[int], chec
             retreived_tender_id = decoded_logs[0]['args']['tenderId']
             # retreived_checksums = decoded_logs[0]['args']['checksums']
             dkeys = decoded_logs[0]['args']['dKeys']
+            print(dkeys)
             for i in range(len(bidder_ids)):
-                if dkeys[i]:
+                if dkeys[i] != "":
                     get_from_dstorage(f'{retreived_tender_id}-{bidder_ids[i]}.pdf')
                     decrypt_file(f'{retreived_tender_id}-{bidder_ids[i]}.pdf', dkeys[i])
                 else:
@@ -262,6 +277,6 @@ def save_to_chain(input_path: str, tender_id: int, bidder_id: int) -> str:
     """
     outputpath, dkey, file_name_on_dstorage = encrypt_file(input_path, tender_id, bidder_id)
     save_to_dstorage(outputpath, file_name_on_dstorage)
-    checksum = calculate_checksum(outputpath)
+    checksum = calculate_checksum(file_name_on_dstorage)
     save_dkey_checksum_to_chain(tender_id, bidder_id, dkey, checksum)
     return outputpath
