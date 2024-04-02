@@ -4,7 +4,20 @@
 {% block content %}
     <div class="container mt-4">
         <div class="jumbotron">
-            <h1>Welcome to the Home Page!</h1>
+          <div class="row">
+            <div class="col-md-7">
+                <h4 class="text-left font-wight-bold">Coupons</h4>
+            </div>
+            <div class="col-md">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <input type="text" name="keyword" class="col-md-10 form-control" placeholder="Enter Key Word to Search">
+                        <input type="submit" value="🔍" class="col-md-1 btn btn-secondary form-control">
+                    </div>
+                </form>
+            </div>
+        </div>
             <div class="row">
               {% if request.user.is_superuser %}
                 {% for i in completed_tenders %}
@@ -32,6 +45,8 @@
                     </div>
                   </div>
                 {% endfor %}
+                
+              <br>
               {% endif %}
                 {% for i in active_tenders %}
                 <div class="col-xl-4 col-lg-6">
@@ -58,7 +73,7 @@
                     </div>
                   </div>
                 {% endfor %}
-
+                  <br>
                 
 
                 {% for i in inactive_tenders %}

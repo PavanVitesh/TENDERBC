@@ -19,9 +19,14 @@ def Home(request):
             bid_ids = Bid.objects.filter(tender_id=i.id).values_list('id', flat=True)
             # tamper_bid_ids = retreive_from_chain(i.id, list(bid_ids))
             i.save()
-    active_tenders = Tender.objects.filter(Status='Active')
-    inactive_tenders = Tender.objects.filter(Status='Inactive')
-    completed_tenders = Tender.objects.filter(Status='Completed')
+    if request.method == "POST"  and request.POST['keyword'] != "":
+        active_tenders = Tender.objects.filter(description__icontains=request.POST['keyword'], Status='Active')
+        inactive_tenders = Tender.objects.filter(description__icontains=request.POST['keyword'], Status='Inactive')
+        completed_tenders = Tender.objects.filter(description__icontains=request.POST['keyword'], Status='Completed')
+    else:
+        active_tenders = Tender.objects.filter(Status='Active')
+        inactive_tenders = Tender.objects.filter(Status='Inactive')
+        completed_tenders = Tender.objects.filter(Status='Completed')
     return render (request,'html/home.html',{"active_tenders":active_tenders,"inactive_tenders":inactive_tenders,'completed_tenders':completed_tenders})
 
 def Register(request):
