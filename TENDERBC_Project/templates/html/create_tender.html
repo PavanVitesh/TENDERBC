@@ -1,6 +1,7 @@
 {% extends 'html/base.html' %}
 {% block title %}Create Tender{% endblock %}
 {% block content %}
+
 <div class="container mt-4">
 	<div class="card col-md-5 mx-auto shadow-lg">
 		<div class="card-body">
@@ -21,5 +22,53 @@
             </form>
 		</div>
 	</div>
+</div>
+<style>
+  @keyframes fadeIn {
+      0% {opacity: 0;}
+      100% {opacity: 1;}
+  }
+  
+  .message {
+      animation: fadeIn 1s;
+  }
+  .sticky-bottom {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+</style>
+<script>
+  setTimeout(function() {
+      var messages = document.querySelectorAll('.message');
+      messages.forEach(function(message) {
+          message.style.transition = 'opacity 1s ease-out';
+          message.style.opacity = '0';
+      });
+  }, 3000);
+</script>
+<div class="container mt-4 sticky-bottom">
+  <div class="row justify-content-center">
+      <div class="col-md-5" style="display: flex; justify-content: center;">
+          {% for message in messages %}
+              {% if message.tags == 'success' %}
+                  <div class="card text-white bg-success mb-3 message">
+                      <div class="card-body">
+                          <p class="card-text">{{ message }}</p>
+                      </div>
+                  </div>
+              {% elif message.tags == 'error' %}
+                  <div class="card text-white bg-danger mb-3 message">
+                      <div class="card-body">
+                          <p class="card-text">{{ message }}</p>
+                      </div>
+                  </div>
+              {% endif %}
+          {% endfor %}
+      </div>
+  </div>
 </div>
 {% endblock %}

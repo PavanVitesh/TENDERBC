@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import UserForm, TenderForm, ChgPwdForm, BidForm
 from .models import Tender, Bid, User
-from .security_utils import save_to_chain, add_tender_data_to_chain, retreive_tender_dkeys_from_chain
+from .security_utils import save_dkey_to_chain, save_to_chain, add_tender_data_to_chain, retreive_tender_dkeys_from_chain
 from django.utils import timezone
 from django.contrib import messages
 from django.utils import timezone
@@ -11,23 +11,30 @@ from django.utils import timezone
 def Home(request):
     tends = Tender.objects.all()
     for i in tends:
-        if i.start_date_time <= timezone.now() <= i.end_date_time:
+        if i.start_date_time > timezone.now():
+            i.Status = "Inactive"
+            i.save()
+        elif i.start_date_time <= timezone.now() <= i.end_date_time:
             i.Status = "Active"
             i.save()
-        elif i.end_date_time < timezone.now() and i.Status != "Granted":
+        elif timezone.now() <= i.end_date_time + timezone.timedelta(seconds=120):
+            i.Status = "Key Submission"
+            i.save()
+        elif i.Status != "Granted":
             i.Status = "Completed"
             bid_ids = Bid.objects.filter(tender_id=i.id).values_list('id', flat=True)
-            # tamper_bid_ids = retreive_from_chain(i.id, list(bid_ids))
             i.save()
     if request.method == "POST"  and request.POST['keyword'] != "":
         active_tenders = Tender.objects.filter(description__icontains=request.POST['keyword'], Status='Active')
         inactive_tenders = Tender.objects.filter(description__icontains=request.POST['keyword'], Status='Inactive')
+        key_submission_tenders = Tender.objects.filter(description__icontains=request.POST['keyword'], Status='Key Submission')
         completed_tenders = Tender.objects.filter(description__icontains=request.POST['keyword'], Status='Completed')
     else:
         active_tenders = Tender.objects.filter(Status='Active')
         inactive_tenders = Tender.objects.filter(Status='Inactive')
+        keysubmission_tenders = Tender.objects.filter(Status='Key Submission')
         completed_tenders = Tender.objects.filter(Status='Completed')
-    return render (request,'html/home.html',{"active_tenders":active_tenders,"inactive_tenders":inactive_tenders,'completed_tenders':completed_tenders})
+    return render (request,'html/home.html',{"active_tenders":active_tenders,"inactive_tenders":inactive_tenders,'completed_tenders':completed_tenders, 'keysubmission_tenders':keysubmission_tenders})
 
 def Register(request):
     userform = UserForm()
@@ -60,48 +67,66 @@ def Create_Tender(request):
             ctform = ctform.save()
             try: 
                 add_tender_data_to_chain(ctform.id, ctform.start_date_time, ctform.end_date_time)
+                messages.success(request, 'Tender created successfully')
             except Exception as e: 
                 ctform.delete()
-                print(e) 
-                return redirect('/CreateTender/')
-            
-        return redirect('/CreateTender/')
+                messages.error(request, e)
+                print(e)
+
     ctform = TenderForm()
     return render (request,'html/create_tender.html',{'ctform':ctform})
 
 def View_Tender(request,x):
     details = Tender.objects.get(id=x)
+    dkey = ""
     if request.method == 'POST':
-        print(request.POST)
-        bidsubmission = BidForm(request.POST, request.FILES)
-        if bidsubmission.is_valid():
-            bidsubmission = bidsubmission.save(commit=False)
-            outputpath = save_to_chain(str(bidsubmission.document), x, request.user.id)
-            bidsubmission.bidder_id = request.user.id
-            bidsubmission.tender_id = x
-            bidsubmission.document = 'Bid documents/' + outputpath
-            bidsubmission.save()
-            print(bidsubmission.document)
-        return redirect('/')
+        if details.Status == 'Active':
+            bidsubmission = BidForm(request.POST, request.FILES)
+            if bidsubmission.is_valid():
+                bidsubmission = bidsubmission.save(commit=False)
+                filename = str(bidsubmission.document)
+                bidsubmission.bidder_id = request.user.id
+                bidsubmission.tender_id = x
+                bidsubmission.save()
+                try:
+                    outputpath, dkey = save_to_chain(filename, bidsubmission.tender_id, bidsubmission.bidder_id)
+                    bidsubmission.document = 'Bid documents/' + outputpath
+                    bidsubmission.save()
+                    messages.success(request, 'Your bid has been submitted successfully, and the Secret Key has been downloaded. Please keep it safe for later use.')
+                    messages.success(request, "")
+                except:
+                    bidsubmission.delete()
+                    messages.error(request, 'Error while saving to blockchain')
+        if details.Status == 'Key Submission':
+            secret_key = request.POST.get('dkey_received')
+            if not secret_key:
+                messages.error(request, 'Secret Key')
+            else:
+                try:
+                    save_dkey_to_chain(x, request.user.id, secret_key)
+                    messages.success(request, 'Secret Key uploaded successfully')
+                except BaseException as e:
+                    messages.error(request, e)
     bidsubmission = BidForm()
     alreadysubmitted = False
-    print(x, list(Bid.objects.filter(tender_id=x).values_list('bidder_id', flat=True)))
-    tampered_bidder_ids = retreive_tender_dkeys_from_chain(x, list(Bid.objects.filter(tender_id=x).values_list('bidder_id', flat=True)))
-    print(tampered_bidder_ids)
-    if not tampered_bidder_ids:
-        tampered_bidder_ids = []
     bids_submitted_to_this_tender = Bid.objects.filter(tender_id=x)
+    if details.Status == 'Completed':
+        tampered_bidder_ids = retreive_tender_dkeys_from_chain(x, list(Bid.objects.filter(tender_id=x).values_list('bidder_id', flat=True)))
+        if not tampered_bidder_ids:
+            tampered_bidder_ids = []
+        for i in bids_submitted_to_this_tender:
+            if i.bidder_id in tampered_bidder_ids:
+                i.Status = "Ignored"
+                i.save()
     my_bid = None
     for  i in bids_submitted_to_this_tender:
         if i.bidder_id == request.user.id:
             alreadysubmitted = True
             my_bid = i
             break
-        if i.bidder_id in tampered_bidder_ids:
-            i.Status = "Ignored"
-            i.save()
-
-    return render(request, 'html/view_tender.html', {'details':details,'bidsubmission':bidsubmission,'alreadysubmitted':alreadysubmitted,'bids_submitted_to_this_tender':bids_submitted_to_this_tender,'my_bid':my_bid})
+    if request.method == 'POST' and details.Status == 'Key Submission':
+        return redirect('/ViewTender/'+str(x))
+    return render(request, 'html/view_tender.html', {'details':details,'bidsubmission':bidsubmission,'alreadysubmitted':alreadysubmitted,'bids_submitted_to_this_tender':bids_submitted_to_this_tender,'my_bid':my_bid, 'dkey':dkey})
 
 
 def Past_Tenders(request):

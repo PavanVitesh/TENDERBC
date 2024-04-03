@@ -69,7 +69,21 @@
         </div>
         {% endif %}
     {% elif alreadysubmitted %}
-        {% if details.Status == "Completed" or details.Status == "Granted" %}
+        {% if details.Status == "Key Submission" %} 
+            <div class="container mt-5">
+                <div class="card col-md-7 mx-auto shadow-lg">
+                    <div class="card-body">
+                        <h6>
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="text" name="dkey_received" placeholder="Enter Decryption Key" class="form-control my-2">
+                                <input type="submit" value="Submit" class="btn btn-outline-success col my-2">
+                            </form>
+                        </h6>
+                    </div>
+                </div>
+            </div>
+        {% elif details.Status == "Completed" or details.Status == "Granted" %}
         <div class="container mt-5">
             <div class="card col-md-7 mx-auto shadow-lg">
                 <div class="card-body">
@@ -91,12 +105,36 @@
         <div class="container mt-4">
             <div class="card col-md-7 mx-auto shadow-lg">
                 <div class="card-body">
-                    <h5>You have already submitted your bid to this tender</h5>
+                    <h5>Your bid has been submitted successfully</h5>
                 </div>
             </div>
         </div>
         {% endif %}
+        {% if dkey %}
+        <script>
+            function downloadDKey(dkey, title, username) {
+                var element = document.createElement('a');
+                element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(dkey));
+                element.setAttribute('download', encodeURIComponent(title) + '_' + encodeURIComponent(username) + '_Secret_Key.txt');
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+                delete dkey;
+            }
+            downloadDKey("{{ dkey }}", "{{ details.title }}", "{{ request.user.username }}");
+        </script>
+        {% endif %}
     {% else %}
+    {% if details.Status == 'Inactive'%}
+    <div class="container mt-4">
+        <div class="card col-md-7 mx-auto shadow-lg">
+            <div class="card-body">
+                <h5>Tender isn't started yet</h5>
+            </div>
+        </div>
+    </div>
+    {% elif details.Status == 'Active'%}
     <div class="container mt-4">
         <div class="card col-md-7 mx-auto shadow-lg">
             <div class="card-body">
@@ -108,9 +146,67 @@
                     {% endfor %}
                     <input type="submit" value="Submit" class="btn btn-outline-success col my-2">
                 </form>
-
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="container mt-4">
+        <div class="card col-md-7 mx-auto shadow-lg">
+            <div class="card-body">
+                <h5>You have not submitted your bid for this tender</h5>
             </div>
         </div>
     </div>
     {% endif %}
+    {% endif %}
+
+    <style>
+        @keyframes fadeIn {
+            0% {opacity: 0;}
+            100% {opacity: 1;}
+        }
+        
+        .message {
+            animation: fadeIn 1s;
+        }
+        .sticky-bottom {
+          position: sticky;
+          bottom: 0;
+          width: 100%;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+        }
+      </style>
+      <script>
+        setTimeout(function() {
+            var messages = document.querySelectorAll('.message');
+            messages.forEach(function(message) {
+                message.style.transition = 'opacity 1s ease-out';
+                message.style.opacity = '0';
+            });
+        }, 3000);
+      </script>
+      <div class="container mt-4 sticky-bottom">
+        <div class="row justify-content-center">
+            <div class="col-md-5" style="display: flex; justify-content: center;">
+                {% for message in messages %}
+                    {% if message.tags == 'success' %}
+                        <div class="card text-white bg-success mb-3 message">
+                            <div class="card-body">
+                                <p class="card-text">{{ message }}</p>
+                            </div>
+                        </div>
+                    {% elif message.tags == 'error' %}
+                        <div class="card text-white bg-danger mb-3 message">
+                            <div class="card-body">
+                                <p class="card-text">{{ message }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+      </div>
+
 {% endblock %}

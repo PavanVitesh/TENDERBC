@@ -7,17 +7,20 @@ contract TenderContract {
         string dKey;
         string checksum;
     }
-
+    
+    // uint256 threeDays = 259200;
+    uint256 threeDays = 120;
     uint256[] private tenderIds;
     mapping (uint256 => uint256) private startTime;
     mapping (uint256 => uint256) private endTime;
     mapping (uint256 => mapping(uint256 => Bid)) private bid;
     mapping (uint256 => uint256[]) private bidderIds;
 
-    event BidderKeyRetrieved(uint256 tenderId, uint256 bidderId, string externalChecksum, string dKey);
     event TenderKeysRetrieved(uint256 tenderId, uint256[] bidderIds, string[] externalChecksums, string[] dKeys);
     event TenderCreated(uint256 tenderId, uint256 createdTime, uint256 startTime, uint256 endTime);
     event BidAdded(uint256 tenderId, uint256 bidderId);
+    event DKeyUploaded(uint256 tenderId, uint256 bidderId, string dKey);
+    event DKeyChecked(uint256 tenderId, uint256 bidderId, bool dKeyPresent);
 
     function tenderIsPresent(uint256 _tenderId) private view returns (bool) {
         for (uint256 i = 0; i < tenderIds.length; i++) if( _tenderId == tenderIds[i] ) return true;
@@ -27,6 +30,12 @@ contract TenderContract {
     function bidderForTenderIsPresent(uint256 _tenderId, uint256 _bidderId) private view returns (bool) {
         for (uint256 i = 0; i < bidderIds[_tenderId].length; i++) if( _bidderId == bidderIds[_tenderId][i]) return true;
         return false;
+    }
+
+    function dKeyForBidIsPresent(uint256 _tenderId, uint256 _bidderId) external {
+        require(tenderIsPresent(_tenderId), "Invalid Tender ID");
+        require(bidderForTenderIsPresent(_tenderId, _bidderId), "Invalid Bidder ID");
+        emit DKeyChecked(_tenderId, _bidderId, keccak256(abi.encodePacked(bid[_tenderId][_bidderId].dKey)) != keccak256(abi.encodePacked("")));
     }
 
     function createTender(uint256 _tenderId, uint256 _startTime, uint256 _endTime) external {
@@ -39,30 +48,31 @@ contract TenderContract {
         emit TenderCreated(_tenderId, block.timestamp, _startTime, _endTime);
     }
 
-    function placeBid(uint256 _tenderId, uint256 _bidderId, string calldata _dKey, string calldata _checksum) external {
+    function placeBid(uint256 _tenderId, uint256 _bidderId, string calldata _checksum) external {
         require(tenderIsPresent(_tenderId), "Invalid Tender ID");
         require(!bidderForTenderIsPresent(_tenderId, _bidderId), "Bid already exists");
-        require(block.timestamp > startTime[_tenderId], "Tender is not started");
+        require(block.timestamp >= startTime[_tenderId], "Tender is not started");
         require(block.timestamp < endTime[_tenderId], "Tender has ended");
         bidderIds[_tenderId].push(_bidderId);
-        bid[_tenderId][_bidderId] = Bid(_dKey, _checksum);
+        bid[_tenderId][_bidderId] = Bid("", _checksum);
         emit BidAdded(_tenderId, _bidderId);
     }
 
-    function retrieveDKey(uint256 _tenderId, uint256 _bidderId, string calldata _checksum) external {
+    function saveBidDKey(uint256 _tenderId, uint256 _bidderId, string calldata _dKey) external {
         require(tenderIsPresent(_tenderId), "Invalid Tender ID");
         require(bidderForTenderIsPresent(_tenderId, _bidderId), "Invalid Bidder ID");
         require(block.timestamp >= startTime[_tenderId], "Tender is not started");
-        require(block.timestamp >= endTime[_tenderId], "Tender is still active");
-        require(keccak256(abi.encodePacked(_checksum)) == keccak256(abi.encodePacked(bid[_tenderId][_bidderId].checksum)), "Invalid checksum");
-        string memory dKey = bid[_tenderId][_bidderId].dKey;
-        emit BidderKeyRetrieved(_tenderId, _bidderId, _checksum, dKey);
+        require(block.timestamp >= endTime[_tenderId], "Tender is in Bidding phase");
+        require(keccak256(abi.encodePacked(_dKey)) != keccak256(abi.encodePacked("")), "Decryption key is empty");
+        bid[_tenderId][_bidderId].dKey = _dKey;
+        emit DKeyUploaded(_tenderId, _bidderId, _dKey);
     }
 
     function retrieveDKeysForTender(uint256 _tenderId, uint256[] calldata _bidderIds, string[] calldata _checksums) external {
         require(tenderIsPresent(_tenderId), "Invalid Tender ID");
         require(block.timestamp >= startTime[_tenderId], "Tender is not started");
-        require(block.timestamp >= endTime[_tenderId], "Tender is still active");
+        require(block.timestamp >= endTime[_tenderId], "Tender is in Bidding phase");
+        require(block.timestamp >= endTime[_tenderId] + threeDays, "Tender is in Verification phase");
         require(_bidderIds.length == _checksums.length, "Arrays length mismatch");
         string[] memory decryptionKeys = new string[](_bidderIds.length);
         for (uint256 i = 0; i < _bidderIds.length; i++) {

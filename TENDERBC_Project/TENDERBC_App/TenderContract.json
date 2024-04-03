@@ -19,37 +19,6 @@
 		"type": "event"
 	},
 	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "tenderId",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "bidderId",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "externalChecksum",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "dKey",
-				"type": "string"
-			}
-		],
-		"name": "BidderKeyRetrieved",
-		"type": "event"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "uint256",
@@ -73,6 +42,31 @@
 		"type": "function"
 	},
 	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tenderId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "bidderId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "dKeyPresent",
+				"type": "bool"
+			}
+		],
+		"name": "DKeyChecked",
+		"type": "event"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "uint256",
@@ -83,22 +77,37 @@
 				"internalType": "uint256",
 				"name": "_bidderId",
 				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "_dKey",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_checksum",
-				"type": "string"
 			}
 		],
-		"name": "placeBid",
+		"name": "dKeyForBidIsPresent",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tenderId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "bidderId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "dKey",
+				"type": "string"
+			}
+		],
+		"name": "DKeyUploaded",
+		"type": "event"
 	},
 	{
 		"inputs": [
@@ -118,7 +127,7 @@
 				"type": "string"
 			}
 		],
-		"name": "retrieveDKey",
+		"name": "placeBid",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -142,6 +151,29 @@
 			}
 		],
 		"name": "retrieveDKeysForTender",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tenderId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_bidderId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_dKey",
+				"type": "string"
+			}
+		],
+		"name": "saveBidDKey",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
