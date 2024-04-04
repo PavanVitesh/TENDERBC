@@ -29,7 +29,7 @@ class Tender(models.Model):
     Status = models.CharField("Status", choices=sts, default='Inactive', max_length=15)
 
 class Bid(models.Model):
-    sts = (('Submitted','Submitted'),('Accpeted','Accepted'),('Rejected','Rejected'))
+    sts = (('Submitted','Submitted'),('Accpeted','Accepted'),('Rejected','Rejected'), ('Ignored', 'Ignored'))
     tender = models.ForeignKey(Tender,on_delete=models.CASCADE)
     bidder = models.ForeignKey(User,on_delete=models.CASCADE)
     document = models.FileField(upload_to='Bid documents/')

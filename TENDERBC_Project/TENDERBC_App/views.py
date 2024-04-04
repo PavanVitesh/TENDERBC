@@ -27,7 +27,7 @@ def Home(request):
     if request.method == "POST"  and request.POST['keyword'] != "":
         active_tenders = Tender.objects.filter(description__icontains=request.POST['keyword'], Status='Active')
         inactive_tenders = Tender.objects.filter(description__icontains=request.POST['keyword'], Status='Inactive')
-        key_submission_tenders = Tender.objects.filter(description__icontains=request.POST['keyword'], Status='Key Submission')
+        keysubmission_tenders = Tender.objects.filter(description__icontains=request.POST['keyword'], Status='Key Submission')
         completed_tenders = Tender.objects.filter(description__icontains=request.POST['keyword'], Status='Completed')
     else:
         active_tenders = Tender.objects.filter(Status='Active')
@@ -68,7 +68,7 @@ def Create_Tender(request):
             try: 
                 add_tender_data_to_chain(ctform.id, ctform.start_date_time, ctform.end_date_time)
                 messages.success(request, 'Tender created successfully')
-            except Exception as e: 
+            except BaseException as e: 
                 ctform.delete()
                 messages.error(request, e)
                 print(e)
@@ -98,7 +98,7 @@ def View_Tender(request,x):
                     bidsubmission.delete()
                     messages.error(request, 'Error while saving to blockchain')
         if details.Status == 'Key Submission':
-            secret_key = request.POST.get('dkey_received')
+            secret_key = request.POST.get('secret_key')
             if not secret_key:
                 messages.error(request, 'Secret Key')
             else:
@@ -112,6 +112,7 @@ def View_Tender(request,x):
     bids_submitted_to_this_tender = Bid.objects.filter(tender_id=x)
     if details.Status == 'Completed':
         tampered_bidder_ids = retreive_tender_dkeys_from_chain(x, list(Bid.objects.filter(tender_id=x).values_list('bidder_id', flat=True)))
+        print("tampered ", tampered_bidder_ids)
         if not tampered_bidder_ids:
             tampered_bidder_ids = []
         for i in bids_submitted_to_this_tender:

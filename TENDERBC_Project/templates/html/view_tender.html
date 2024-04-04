@@ -50,6 +50,8 @@
                                 <span class="text-success">Accepted</span>
                                 {% elif bid.Status == "Rejected" %}
                                 <span class="text-danger">Rejected</span>
+                                {% elif bid.Status == "Ignored" %}
+                                <span class="text-warning">Ignored</span>
                                 {% else %}
                                 <a href="{% url 'ab' bid.id %}" class="btn btn-outline-success">Accept<i class="fa fa-check"></i></a>
                                 {% endif %}
@@ -76,7 +78,7 @@
                         <h6>
                             <form method="post">
                                 {% csrf_token %}
-                                <input type="text" name="dkey_received" placeholder="Enter Decryption Key" class="form-control my-2">
+                                <input type="text" name="secret_key" placeholder="Enter Secret Key" class="form-control my-2">
                                 <input type="submit" value="Submit" class="btn btn-outline-success col my-2">
                             </form>
                         </h6>
