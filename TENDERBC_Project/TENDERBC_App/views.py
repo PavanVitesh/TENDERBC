@@ -25,10 +25,10 @@ def Home(request):
             bid_ids = Bid.objects.filter(tender_id=i.id).values_list('id', flat=True)
             i.save()
     if request.method == "POST"  and request.POST['keyword'] != "":
-        active_tenders = Tender.objects.filter(description__icontains=request.POST['keyword'], Status='Active')
-        inactive_tenders = Tender.objects.filter(description__icontains=request.POST['keyword'], Status='Inactive')
-        keysubmission_tenders = Tender.objects.filter(description__icontains=request.POST['keyword'], Status='Key Submission')
-        completed_tenders = Tender.objects.filter(description__icontains=request.POST['keyword'], Status='Completed')
+        active_tenders = Tender.objects.filter(Q(title__icontains=request.POST['keyword']) | Q(description__icontains=request.POST['keyword']), Status='Active')
+        inactive_tenders = Tender.objects.filter(Q(title__icontains=request.POST['keyword']) | Q(description__icontains=request.POST['keyword']), Status='Inactive')
+        keysubmission_tenders = Tender.objects.filter(Q(title__icontains=request.POST['keyword']) | Q(description__icontains=request.POST['keyword']), Status='Key Submission')
+        completed_tenders = Tender.objects.filter(Q(title__icontains=request.POST['keyword']) | Q(description__icontains=request.POST['keyword']), Status='Completed')
     else:
         active_tenders = Tender.objects.filter(Status='Active')
         inactive_tenders = Tender.objects.filter(Status='Inactive')
