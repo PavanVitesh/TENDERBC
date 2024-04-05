@@ -1,7 +1,7 @@
 import time
 from django.shortcuts import render, redirect
 from .forms import UserForm, TenderForm, ChgPwdForm, BidForm
-from .models import Tender, Bid, User, Q
+from .models import Tender, Bid, User
 from .security_utils import save_dkey_to_chain, save_to_chain, add_tender_data_to_chain, retreive_tender_dkeys_from_chain
 from django.utils import timezone
 from django.contrib import messages
@@ -28,10 +28,10 @@ def Home(request):
             bid_ids = Bid.objects.filter(tender_id=i.id).values_list('id', flat=True)
             i.save()
     if request.method == "POST"  and request.POST['keyword'] != "":
-        active_tenders = Tender.objects.filter(Q(title__icontains=request.POST['keyword']) | Q(description__icontains=request.POST['keyword']), Status='Active')
-        inactive_tenders = Tender.objects.filter(Q(title__icontains=request.POST['keyword']) | Q(description__icontains=request.POST['keyword']), Status='Inactive')
-        keysubmission_tenders = Tender.objects.filter(Q(title__icontains=request.POST['keyword']) | Q(description__icontains=request.POST['keyword']), Status='Key Submission')
-        completed_tenders = Tender.objects.filter(Q(title__icontains=request.POST['keyword']) | Q(description__icontains=request.POST['keyword']), Status='Completed')
+        active_tenders = Tender.objects.filter(title__icontains=request.POST['keyword'], description__icontains=request.POST['keyword'], Status='Active')
+        inactive_tenders = Tender.objects.filter(title__icontains=request.POST['keyword'], description__icontains=request.POST['keyword'], Status='Inactive')
+        keysubmission_tenders = Tender.objects.filter(title__icontains=request.POST['keyword'], description__icontains=request.POST['keyword'], Status='Key Submission')
+        completed_tenders = Tender.objects.filter(title__icontains=request.POST['keyword'], description__icontains=request.POST['keyword'], Status='Completed')
     else:
         active_tenders = Tender.objects.filter(Status='Active')
         inactive_tenders = Tender.objects.filter(Status='Inactive')
