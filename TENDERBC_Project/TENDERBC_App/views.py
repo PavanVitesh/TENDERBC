@@ -1,9 +1,12 @@
+import time
 from django.shortcuts import render, redirect
 from .forms import UserForm, TenderForm, ChgPwdForm, BidForm
 from .models import Tender, Bid, User
 from .security_utils import save_dkey_to_chain, save_to_chain, add_tender_data_to_chain, retreive_tender_dkeys_from_chain
 from django.utils import timezone
 from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.views.decorators.csrf import csrf_protect
 from django.utils import timezone
 
 
@@ -42,22 +45,42 @@ def Register(request):
         userform=UserForm(data=request.POST)
         if userform.is_valid():
             userform.save()
+            messages.success(request, 'Registration Successful. Please login to continue.')
+            time.sleep(2)
             return redirect('/login/')
+        else:
+            messages.error(request, userform.errors.popitem()[1][0])
     return render(request,'html/register.html',{'userform':userform})
+
+def Login(request):
+    if request.method == 'POST':
+        uname = request.POST['username']
+        pwd = request.POST['password']
+        from django.contrib.auth import authenticate, login
+        user = authenticate(username=uname, password=pwd)
+        if user is not None:
+            login(request, user)
+            messages.success(request, 'Login Successful')
+            return redirect('/')
+        else:
+            messages.error(request, 'Invalid Credentials')
+    return render(request,'html/login.html')
 
 def Profile(request,x):
     user_details = User.objects.get(id=x)
     return render (request,'html/profile.html',{'user_details':user_details})
 
-
 def Change_Password(request):
-	if request.method == "POST":
-		n = ChgPwdForm(user=request.user,data=request.POST)
-		if n.is_valid():
-			n.save()
-			return redirect('/login/')
-	n = ChgPwdForm(user=request)
-	return render(request,'html/changepassword.html',{'h':n})
+    if request.method == "POST":
+        n = ChgPwdForm(user=request.user,data=request.POST)
+        if n.is_valid():
+            n.save()
+            messages.success(request, 'Password Changed Successfully')
+            return redirect('/login/')
+        else:
+            messages.error(request, n.errors.popitem()[1][0])
+    n = ChgPwdForm(user=request)
+    return render(request,'html/changepassword.html',{'h':n})
 
 def Create_Tender(request):
     if request.method == 'POST':
@@ -68,10 +91,13 @@ def Create_Tender(request):
             try: 
                 add_tender_data_to_chain(ctform.id, ctform.start_date_time, ctform.end_date_time)
                 messages.success(request, 'Tender created successfully')
+                return redirect('../')
             except BaseException as e: 
                 ctform.delete()
                 messages.error(request, e)
                 print(e)
+        else:
+            messages.error(request, ctform.errors.popitem()[1][0])
 
     ctform = TenderForm()
     return render (request,'html/create_tender.html',{'ctform':ctform})
@@ -90,7 +116,7 @@ def View_Tender(request,x):
                 bidsubmission.save()
                 try:
                     outputpath, dkey = save_to_chain(filename, bidsubmission.tender_id, bidsubmission.bidder_id)
-                    bidsubmission.document = 'Bid documents/' + outputpath
+                    bidsubmission.document = outputpath
                     bidsubmission.save()
                     messages.success(request, 'Your bid has been submitted successfully, and the Secret Key has been downloaded. Please keep it safe for later use.')
                     messages.success(request, "")
@@ -140,7 +166,6 @@ def Past_Bids(request):
     submitted_tenders = Tender.objects.filter(id__in=list_tenders)
     return render(request, 'html/past_bids.html',{'submitted_tenders':submitted_tenders})
 
-
 def Accept_Bid(request,x):
     bid_details = Bid.objects.get(id=x)
     tender_details = Tender.objects.get(id=bid_details.tender_id)
@@ -151,5 +176,7 @@ def Accept_Bid(request,x):
     bid_details.Status = "Accepted"
     bid_details.save()
     tender_details.Status = "Granted"
+    bidder_name = User.objects.get(id=bid_details.bidder_id).username
+    messages.success(request, bidder_name + ' has been granted the tender')
     tender_details.save()
     return redirect('../ViewTender/'+str(bid_details.tender_id))

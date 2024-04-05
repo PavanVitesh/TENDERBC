@@ -51,6 +51,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOWED_ORIGINS = [
+    "https://poorly-loved-bobcat.ngrok-free.app",
+]
 ROOT_URLCONF = 'TENDERBC_Project.urls'
 
 TEMPLATES = [

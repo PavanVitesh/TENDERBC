@@ -84,4 +84,26 @@ contract TenderContract {
         }
         emit TenderKeysRetrieved(_tenderId, _bidderIds, _checksums, decryptionKeys);
     }
+
+    // function getTenderIds() external view returns (uint256[] memory) {
+    //     return tenderIds;
+    // }
+
+    // function getDKeyForBid(uint256 _tenderId, uint256 _bidderId) external view returns (string memory) {
+    //     require(tenderIsPresent(_tenderId), "Invalid Tender ID");
+    //     require(bidderForTenderIsPresent(_tenderId, _bidderId), "Invalid Bidder ID");
+    //     return bid[_tenderId][_bidderId].dKey;
+    // }
+
+    // function getChecksumForBid(uint256 _tenderId, uint256 _bidderId) external view returns (string memory) {
+    //     require(tenderIsPresent(_tenderId), "Invalid Tender ID");
+    //     require(bidderForTenderIsPresent(_tenderId, _bidderId), "Invalid Bidder ID");
+    //     return bid[_tenderId][_bidderId].checksum;
+    // }
+
+    // function getBidderIdsForTender(uint256 _tenderId) external view returns (uint256[] memory) {
+    //     require(tenderIsPresent(_tenderId), "Invalid Tender ID");
+    //     return bidderIds[_tenderId];
+    // }
+
 }

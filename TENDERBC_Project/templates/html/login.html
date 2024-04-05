@@ -2,14 +2,6 @@
 {% block title %}Login{% endblock %}
 {% block content %}
 <div class="container mt-4">
-	{% if messages %}
-            {% for i in messages %}
-                <div class="alert alert-{{i.tags}} alert-dismissible my-2 col-md-2 text-right">
-                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                    {{i}}
-                </div>
-            {% endfor %}
-        {% endif %}
 	<div class="card col-md-5 mx-auto shadow-lg">
         <div class="card-body">
 			<h4>Login</h4>
@@ -29,4 +21,5 @@
 		</div>
 	</div>
 </div>
+
 {% endblock %}
