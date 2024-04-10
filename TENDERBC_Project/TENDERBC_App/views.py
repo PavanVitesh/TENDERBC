@@ -50,7 +50,7 @@ def Register(request):
         if userform.is_valid():
             userform.save()
             messages.success(request, 'Registration Successful. Please login to continue.')
-            mail_service("Welcome to TENDERBC!", "Thank you for registering to TENDERBC you can now use it to submit your bids for tenders", request.user)
+            mail_service("Welcome to TENDERBC!", "Thank you for registering to TENDERBC you can now use it to submit your bids for tenders", request.user.id)
             return redirect('/login/')
         else:
             messages.error(request, userform.errors.popitem()[1][0])
@@ -68,7 +68,7 @@ def Login(request):
             return redirect('/')
         else:
             if not request.user.is_superuser:
-                mail_service("Login Alert! Invalid Credentials", "You have made an invalid attempt to login \nNot You? \n Protect your account by changing password!", request.user)
+                mail_service("Login Alert! Invalid Credentials", "You have made an invalid attempt to login \nNot You? \n Protect your account by changing password!", request.user.id)
             messages.error(request, 'Invalid Credentials')
     return render(request,'html/login.html')
 
@@ -82,7 +82,7 @@ def Change_Password(request):
         if n.is_valid():
             n.save()
             messages.success(request, 'Password Changed Successfully')
-            mail_service("Changed Password Sucessfully!", "Account Password Changed successfully", request.user)
+            mail_service("Changed Password Sucessfully!", "Account Password Changed successfully", request.user.id)
             return redirect('/login/')
         else:
             messages.error(request, n.errors.popitem()[1][0])
@@ -126,12 +126,12 @@ def View_Tender(request,x):
                     bidsubmission.document = outputpath
                     bidsubmission.save()
                     messages.success(request, 'Your bid has been submitted successfully, and the Secret Key has been downloaded. Please keep it safe for later use.')
-                    mail_service("Bid submission successfull!", "You have submitted you bid for following Tender: " + "\nTitle: "+ details.title + "\nDescription: " + detais.description + "\nExpiry: " + details.end_date_time, request.user)
+                    mail_service("Bid submission successfull!", "You have submitted you bid for following Tender: " + "\nTitle: "+ details.title + "\nDescription: " + detais.description + "\nExpiry: " + details.end_date_time, request.user.id)
                     messages.success(request, "")
                 except:
                     bidsubmission.delete()
                     messages.error(request, 'Error while saving to blockchain')
-                    mail_service("Bid submission failed!", "Your bid submission for following Tender: " + "\nTitle: "+ details.title + "\nDescription: " + detais.description + "\nExpiry: " + details.end_date_time + "\nis Failed! please resubmit your bid", request.user)
+                    mail_service("Bid submission failed!", "Your bid submission for following Tender: " + "\nTitle: "+ details.title + "\nDescription: " + detais.description + "\nExpiry: " + details.end_date_time + "\nis Failed! please resubmit your bid", request.user.id)
         if details.Status == 'Key Submission':
             secret_key = request.POST.get('secret_key')
             if not secret_key:
@@ -140,10 +140,10 @@ def View_Tender(request,x):
                 try:
                     save_dkey_to_chain(x, request.user.id, secret_key)
                     messages.success(request, 'Secret Key uploaded successfully')
-                    mail_service("Key submission successfull!", "You have submitted secret key for you bid successfully", request.user)
+                    mail_service("Key submission successfull!", "You have submitted secret key for you bid successfully", request.user.id)
                 except BaseException as e:
                     messages.error(request, e)
-                    mail_service("Key submission Failed!", "Secret Key submission failed due to following error\n" + e, request.user)
+                    mail_service("Key submission Failed!", "Secret Key submission failed due to following error\n" + e, request.user.id)
                     
                 
     bidsubmission = BidForm()
@@ -185,15 +185,15 @@ def Accept_Bid(request,x):
     all_bids = Bid.objects.filter(tender_id=bid_details.tender_id)
     for i in all_bids:
         if i.Status == "Ignored":
-            mail_service("Bid Ignored!", "Bid submitted to following tender is IGNORED!!!" + "\nTitle: "+ tender_details.title + "\nDescription: " + tender_detais.description + "\nExpiry: " + tender_details.end_date_time, User.objects.get(id=i.bidder_id))
+            mail_service("Bid Ignored!", "Bid submitted to following tender is IGNORED!!!" + "\nTitle: "+ tender_details.title + "\nDescription: " + tender_detais.description + "\nExpiry: " + tender_details.end_date_time, i.bidder_id)
         else:
             i.Status = "Rejected"
             i.save()
             if i.bidder_id != bid_details.bidder_id:
-                mail_service("Bid Rejected!", "Bid submitted to following tender is REJECTED!!!" + "\nTitle: "+ tender_details.title + "\nDescription: " + tender_detais.description + "\nExpiry: " + tender_details.end_date_time, User.objects.get(id=i.bidder_id))
+                mail_service("Bid Rejected!", "Bid submitted to following tender is REJECTED!!!" + "\nTitle: "+ tender_details.title + "\nDescription: " + tender_detais.description + "\nExpiry: " + tender_details.end_date_time, i.bidder_id)
     bid_details.Status = "Accepted"
     bid_details.save()
-    mail_service("Bid Accepted!", "Bid submitted to following tender is ACCEPTED!!!" + "\nTitle: "+ tender_details.title + "\nDescription: " + tender_detais.description + "\nExpiry: " + tender_details.end_date_time, User.objects.get(id=bid_details.bidder_id))
+    mail_service("Bid Accepted!", "Bid submitted to following tender is ACCEPTED!!!" + "\nTitle: "+ tender_details.title + "\nDescription: " + tender_detais.description + "\nExpiry: " + tender_details.end_date_time, bid_details.bidder_id)
     tender_details.Status = "Granted"
     bidder_name = User.objects.get(id=bid_details.bidder_id).username
     messages.success(request, bidder_name + ' has been granted the tender')
@@ -202,6 +202,7 @@ def Accept_Bid(request,x):
 
 
 
-def mail_service(subject, description, user_obj):
+def mail_service(subject, description, userid):
+    user_obj = User.objects.get(id=userid)
     body = f"Dear {user_obj.username},\n\n{description}\n\nRegards,\nTENDERBC"
     send_mail(subject, body, settings.EMAIL_HOST_USER, [user_obj.email])
