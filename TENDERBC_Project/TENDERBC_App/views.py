@@ -50,7 +50,7 @@ def Register(request):
         if userform.is_valid():
             userform.save()
             messages.success(request, 'Registration Successful. Please login to continue.')
-            mail_service("Welcome to TENDERBC!", "Thank you for registering to TENDERBC you can now use it to submit your bids for tenders", request.user.id)
+            mail_service("Welcome to TENDERBC!", "Thank you for registering to TENDERBC you can now use it to submit your bids for tenders", User.objects.get(username=request.POST['username']).id)
             return redirect('/login/')
         else:
             messages.error(request, userform.errors.popitem()[1][0])
