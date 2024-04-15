@@ -150,8 +150,11 @@ def add_tender_data_to_chain(tender_id: int, start_time:datetime, end_time: date
         >>> end_time = datetime(2021, 9, 2, 0, 0, 0).timestamp() # seconds since epoch
     """
     try:
+        print("k")
         w3, contract = connect_to_chain()
+        print("no")
         tx_hash = contract.functions.createTender(tender_id, int(start_time.timestamp()), int(end_time.timestamp())).transact()
+        print("yes")
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         decoded_logs = contract.events.TenderCreated().process_receipt(tx_receipt)
         if not decoded_logs:

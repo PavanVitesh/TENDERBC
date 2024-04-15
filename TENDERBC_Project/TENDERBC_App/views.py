@@ -14,8 +14,7 @@ from django.core.mail import send_mail
 # example: # send_mail("Welcome to TENDERBC","Registartion Successful",settings.EMAIL_HOST_USER,[request.user.email])
 
 
-# Create your views here.
-def Home(request):
+def update_status():
     tends = Tender.objects.all()
     for i in tends:
         if i.start_date_time > timezone.now():
@@ -29,8 +28,16 @@ def Home(request):
             i.save()
         elif i.Status != "Granted":
             i.Status = "Completed"
-            bid_ids = Bid.objects.filter(tender_id=i.id).values_list('id', flat=True)
             i.save()
+
+def mail_service(subject, description, userid):
+    user_obj = User.objects.get(id=userid)
+    body = f"Dear {user_obj.username},\n\n{description}\n\nRegards,\nTENDERBC"
+    send_mail(subject, body, settings.EMAIL_HOST_USER, [user_obj.email])
+
+# Create your views here.
+def Home(request):
+    update_status()
     if request.method == "POST"  and request.POST['keyword'] != "":
         active_tenders = Tender.objects.filter(title__icontains=request.POST['keyword'], description__icontains=request.POST['keyword'], Status='Active')
         inactive_tenders = Tender.objects.filter(title__icontains=request.POST['keyword'], description__icontains=request.POST['keyword'], Status='Inactive')
@@ -90,6 +97,7 @@ def Change_Password(request):
     return render(request,'html/changepassword.html',{'h':n})
 
 def Create_Tender(request):
+    update_status()
     if request.method == 'POST':
         ctform=TenderForm(request.POST, request.FILES)
         print(request.POST)
@@ -110,6 +118,7 @@ def Create_Tender(request):
     return render (request,'html/create_tender.html',{'ctform':ctform})
 
 def View_Tender(request,x):
+    update_status()
     details = Tender.objects.get(id=x)
     dkey = ""
     if request.method == 'POST':
@@ -170,16 +179,19 @@ def View_Tender(request,x):
 
 
 def Past_Tenders(request):
+    update_status()
     completed_tendrs = Tender.objects.filter(Status="Completed")
     granted_tenders = Tender.objects.filter(Status="Granted")
     return render(request, 'html/past_tenders.html',{'completed_tendrs':completed_tendrs,'granted_tenders':granted_tenders})
 
 def Past_Bids(request):
+    update_status()
     list_tenders = list(Bid.objects.filter(bidder_id=request.user.id).values_list('tender_id', flat=True))
     submitted_tenders = Tender.objects.filter(id__in=list_tenders)
     return render(request, 'html/past_bids.html',{'submitted_tenders':submitted_tenders})
 
 def Accept_Bid(request,x):
+    update_status()
     bid_details = Bid.objects.get(id=x)
     tender_details = Tender.objects.get(id=bid_details.tender_id)
     all_bids = Bid.objects.filter(tender_id=bid_details.tender_id)
@@ -199,10 +211,3 @@ def Accept_Bid(request,x):
     messages.success(request, bidder_name + ' has been granted the tender')
     tender_details.save()
     return redirect('../ViewTender/'+str(bid_details.tender_id))
-
-
-
-def mail_service(subject, description, userid):
-    user_obj = User.objects.get(id=userid)
-    body = f"Dear {user_obj.username},\n\n{description}\n\nRegards,\nTENDERBC"
-    send_mail(subject, body, settings.EMAIL_HOST_USER, [user_obj.email])
