@@ -1,0 +1,370 @@
+.circle {
+    height: 8rem;
+    background-color: green; /* Yellow color */
+    border-radius: 50%; /* Ensures the element is circular */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .circle i {
+    color: #fff; /* White color for the icon */
+    font-size: 24px; /* Adjust the size of the icon as needed */
+  }
+
+  .number {
+    display: none; /* Hide the number initially */
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: yellow; /* Background color for the number */
+    color: black; /* Text color for the number */
+    border-radius: 50%; /* Ensures the number is circular */
+    padding: 4px 8px;
+    font-size: 12px; /* Adjust the font size of the number */
+  }
+
+  .circle:hover .number {
+    display: block; /* Display the number on hover */
+  }
+
+
+
+
+
+
+/* Styling for completed tenders */
+.card-comp h5 {
+    color: #dc3545;
+  }
+  
+  .go-corner-comp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    overflow: hidden;
+    top: 0;
+    right: 0;
+    background-color: #dc3545;
+    border-radius: 0 4px 0 32px;
+  }
+  
+  .go-arrow-comp {
+    margin-top: -4px;
+    margin-right: -4px;
+    color: white;
+    font-family: courier, sans;
+  }
+  
+  .card-comp {
+    display: block;
+    position: relative;
+    max-width: 262px;
+    background-color: white;
+    border-radius: 4px;
+    padding: 32px 24px;
+    margin: 12px;
+    text-decoration: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  
+  .card-comp:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: -16px;
+    right: -16px;
+    background: #dc3545;
+    height: 32px;
+    width: 32px;
+    border-radius: 32px;
+    transform: scale(1);
+    transform-origin: 50% 50%;
+    transition: transform 0.25s ease-out;
+  }
+  
+  .card-comp:hover:before {
+    transform: scale(21);
+  }
+  
+  .card-comp:hover h5 {
+    transition: all 0.3s ease-out;
+    color: white;
+  }
+
+
+/* Styling for Active Tenders */
+.card-acti h5 {
+    color: #28a745;
+  }
+  
+  .go-corner-acti {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    overflow: hidden;
+    top: 0;
+    right: 0;
+    background-color: #28a745;
+    border-radius: 0 4px 0 32px;
+  }
+  
+  .go-arrow-acti {
+    margin-top: -4px;
+    margin-right: -4px;
+    color: white;
+    font-family: courier, sans;
+  }
+  
+  .card-acti {
+    display: block;
+    position: relative;
+    max-width: 262px;
+    background-color: white;
+    border-radius: 4px;
+    padding: 32px 24px;
+    margin: 12px;
+    text-decoration: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  
+  .card-acti:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: -16px;
+    right: -16px;
+    background: #28a745;
+    height: 32px;
+    width: 32px;
+    border-radius: 32px;
+    transform: scale(1);
+    transform-origin: 50% 50%;
+    transition: transform 0.25s ease-out;
+  }
+  
+  .card-acti:hover:before {
+    transform: scale(21);
+  }
+  
+  .card-acti:hover h5 {
+    transition: all 0.3s ease-out;
+    color: white;
+  }
+
+/* Styling for inactive tenders */
+.card-inactive h5 {
+    color: #666;
+  }
+  
+  .go-corner-inactive {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    overflow: hidden;
+    top: 0;
+    right: 0;
+    background-color: #666;
+    border-radius: 0 4px 0 32px;
+  }
+  
+  .go-arrow-inactive {
+    margin-top: -4px;
+    margin-right: -4px;
+    color: white;
+    font-family: courier, sans;
+  }
+  
+  .card-inactive {
+    display: block;
+    position: relative;
+    max-width: 262px;
+    background-color: white;
+    border-radius: 4px;
+    padding: 32px 24px;
+    margin: 12px;
+    text-decoration: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  
+  .card-inactive:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: -16px;
+    right: -16px;
+    background: #666;
+    height: 32px;
+    width: 32px;
+    border-radius: 32px;
+    transform: scale(1);
+    transform-origin: 50% 50%;
+    transition: transform 0.25s ease-out;
+  }
+  
+  .card-inactive:hover:before {
+    transform: scale(21);
+  }
+  
+  .card-inactive:hover h5 {
+    transition: all 0.3s ease-out;
+    color: white;
+  }
+  
+
+/* Styling for key submission tenders */
+.card-ksub h5 {
+    color: #ffc107;
+  }
+  
+  .go-corner-ksub {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    overflow: hidden;
+    top: 0;
+    right: 0;
+    background-color: #ffc107;
+    border-radius: 0 4px 0 32px;
+  }
+  
+  .go-arrow-ksub {
+    margin-top: -4px;
+    margin-right: -4px;
+    color: white;
+    font-family: courier, sans;
+  }
+  
+  .card-ksub {
+    display: block;
+    position: relative;
+    max-width: 262px;
+    background-color: white;
+    border-radius: 4px;
+    padding: 32px 24px;
+    margin: 12px;
+    text-decoration: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  
+  .card-ksub:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: -16px;
+    right: -16px;
+    background: #ffc107;
+    height: 32px;
+    width: 32px;
+    border-radius: 32px;
+    transform: scale(1);
+    transform-origin: 50% 50%;
+    transition: transform 0.25s ease-out;
+  }
+  
+  .card-ksub:hover:before {
+    transform: scale(21);
+  }
+  
+  .card-ksub:hover h5 {
+    transition: all 0.3s ease-out;
+    color: white;
+  }
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 
+Template for each card
+.card1 h5 {
+    color: #666;
+  }
+  
+  .go-corner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    overflow: hidden;
+    top: 0;
+    right: 0;
+    background-color: #666;
+    border-radius: 0 4px 0 32px;
+  }
+  
+  .go-arrow {
+    margin-top: -4px;
+    margin-right: -4px;
+    color: white;
+    font-family: courier, sans;
+  }
+  
+  .card1 {
+    display: block;
+    position: relative;
+    max-width: 262px;
+    background-color: white;
+    border-radius: 4px;
+    padding: 32px 24px;
+    margin: 12px;
+    text-decoration: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  
+  .card1:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: -16px;
+    right: -16px;
+    background: #666;
+    height: 32px;
+    width: 32px;
+    border-radius: 32px;
+    transform: scale(1);
+    transform-origin: 50% 50%;
+    transition: transform 0.25s ease-out;
+  }
+  
+  .card1:hover:before {
+    transform: scale(21);
+  }
+  
+  .card1:hover h5 {
+    transition: all 0.3s ease-out;
+    color: white;
+  }
+   */
