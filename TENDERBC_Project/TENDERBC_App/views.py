@@ -81,7 +81,12 @@ def Login(request):
 
 def Profile(request,x):
     user_details = User.objects.get(id=x)
-    return render (request,'html/profile.html',{'user_details':user_details})
+    counts = {}
+    counts["total"] = Bid.objects.filter(bidder_id=x).count()
+    counts["submitted"] = Bid.objects.filter(bidder_id=x, Status="Submitted").count()
+    counts["accepted"] = Bid.objects.filter(bidder_id=x, Status="Accepted").count()
+    counts["rejected"] = Bid.objects.filter(bidder_id=x, Status="Rejected").count()
+    return render (request,'html/profile.html',{'user_details':user_details,'counts':counts})
 
 def Change_Password(request):
     if request.method == "POST":

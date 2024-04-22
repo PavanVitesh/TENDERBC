@@ -1,33 +1,165 @@
-.circle {
-    height: 8rem;
-    background-color: green; /* Yellow color */
-    border-radius: 50%; /* Ensures the element is circular */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
+/* Home page tenders headigs */
+.custom-heading {
+  background: white;
+  display: flex;
+  color: black;
+}
+.custom-heading:before,
+.custom-heading:after {
+  content: '';
+  margin: auto 1em;
+  border-bottom: solid 1px;
+  flex: 1;
+}
+.custom-heading h4 {
+  position: relative;
+  padding: 0.25em 1em;
+  overflow: hidden;
+  background: linear-gradient(black, black) no-repeat top center, linear-gradient(black, black) no-repeat bottom center;
+  background-size: calc(100% - 1.7em) 1px;
+}
+.custom-heading h4:before,
+.custom-heading h4:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  border: solid 1px;
+  border-top: none;
+  border-bottom: none;
+  transform: skew(45deg)
+}
+.custom-heading h4:after {
+  transform: skew(-45deg)
+}
 
-  .circle i {
-    color: #fff; /* White color for the icon */
-    font-size: 24px; /* Adjust the size of the icon as needed */
-  }
 
-  .number {
-    display: none; /* Hide the number initially */
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    background-color: yellow; /* Background color for the number */
-    color: black; /* Text color for the number */
-    border-radius: 50%; /* Ensures the number is circular */
-    padding: 4px 8px;
-    font-size: 12px; /* Adjust the font size of the number */
-  }
 
-  .circle:hover .number {
-    display: block; /* Display the number on hover */
-  }
+/* Home page scroll bar hiding */
+.home-cscrollbar{
+  overflow-x : scroll;
+}
+
+.home-cscrollbar::-webkit-scrollbar {
+  display : none;
+}
+
+
+/* profile page count icons */
+.gradient-custom {
+  border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;background: #f6d365;
+  background: -webkit-linear-gradient(to right bottom, rgba(246, 211, 101, 1), rgba(253, 160, 133, 1));
+  background: linear-gradient(to right bottom, rgba(246, 211, 101, 1), rgba(253, 160, 133, 1))
+}
+
+
+.button {
+  --width: 100px;
+  --height: 35px;
+  --tooltip-height: 35px;
+  --tooltip-width: 90px;
+  --gap-between-tooltip-to-button: 18px;
+  --button-color: #222;
+  --tooltip-color: #fff;
+  width: var(--width);
+  height: var(--height);
+  background: var(--button-color);
+  position: relative;
+  text-align: center;
+  border-radius: 0.45em;
+  font-family: "Arial";
+  transition: background 0.3s;
+}
+
+.button::before {
+  position: absolute;
+  content: attr(data-tooltip);
+  width: var(--tooltip-width);
+  height: var(--tooltip-height);
+  background-color: #555;
+  font-size: 0.9rem;
+  color: #fff;
+  border-radius: .25em;
+  line-height: var(--tooltip-height);
+  bottom: calc(var(--height) + var(--gap-between-tooltip-to-button) + 10px);
+  left: calc(50% - var(--tooltip-width) / 2);
+}
+
+.button::after {
+  position: absolute;
+  content: '';
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+  border-top-color: #555;
+  left: calc(50% - 10px);
+  bottom: calc(100% + var(--gap-between-tooltip-to-button) - 10px);
+}
+
+.button::after,.button::before {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.5s;
+}
+
+.dispicon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-wrapper,.dispicon,.count {
+  overflow: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  color: #fff;
+}
+
+.dispicon {
+  top: 0
+}
+
+.dispicon,.count {
+  transition: top 0.5s;
+}
+
+.count {
+  color: #fff;
+  top: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.button:hover {
+  background: #222;
+}
+
+.button:hover .dispicon {
+  top: -100%;
+}
+
+.button:hover .count {
+  top: 0;
+}
+
+.button:hover:before,.button:hover:after {
+  opacity: 1;
+  visibility: visible;
+}
+
+.button:hover:after {
+  bottom: calc(var(--height) + var(--gap-between-tooltip-to-button) - 20px);
+}
+
+.button:hover:before {
+  bottom: calc(var(--height) + var(--gap-between-tooltip-to-button));
+}
 
 
 
@@ -36,7 +168,7 @@
 
 /* Styling for completed tenders */
 .card-comp h5 {
-    color: #dc3545;
+    color: red;
   }
   
   .go-corner-comp {
@@ -49,7 +181,7 @@
     overflow: hidden;
     top: 0;
     right: 0;
-    background-color: #dc3545;
+    background-color: #ffc9c9;
     border-radius: 0 4px 0 32px;
   }
   
@@ -65,7 +197,7 @@
     position: relative;
     max-width: 262px;
     background-color: white;
-    border-radius: 4px;
+    border-radius: 10px;
     padding: 32px 24px;
     margin: 12px;
     text-decoration: none;
@@ -79,7 +211,7 @@
     z-index: -1;
     top: -16px;
     right: -16px;
-    background: #dc3545;
+    background: #ffc9c9;
     height: 32px;
     width: 32px;
     border-radius: 32px;
@@ -94,7 +226,7 @@
   
   .card-comp:hover h5 {
     transition: all 0.3s ease-out;
-    color: white;
+    color: rgb(142, 0, 0);
   }
 
 
@@ -129,7 +261,7 @@
     position: relative;
     max-width: 262px;
     background-color: white;
-    border-radius: 4px;
+    border-radius: 10px;
     padding: 32px 24px;
     margin: 12px;
     text-decoration: none;

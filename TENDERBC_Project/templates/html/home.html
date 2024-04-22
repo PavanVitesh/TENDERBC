@@ -6,10 +6,9 @@
 <div class="container mt-4 mr-2">
     <form method="post">
       {% csrf_token %}
-      <div class="row">
-        <div class="col-md-6"></div>
-          <input type="text" name="keyword" class="col-md-4 mr-0 form-control" placeholder="Enter Key Word to Search" style="margin-right: 5px;">
-          <button type ="submit" class="col-md-1 btn btn-secondary form-control">
+      <div class="row justify-content-center">
+          <input type="text" name="keyword" class="col-md-4 mr-1 form-control" placeholder="Enter Key Word to Search" style="border-radius: 25px;">
+          <button type ="submit" class="col-md-1 btn btn-secondary form-control" style="border-radius: 25px;">
             <i class="fa fa-search"></i>
           </button>
       </div>
@@ -17,93 +16,107 @@
 </div>
 
 <!-- Completed Tenders -->
-{% if request.user.is_superuser %}
-  <div class="container-fluid">
-    <h4>Completed Tenders</h4>
-    <div class="d-flex flex-row flex-nowrap overflow-auto">
-      {% for comptend  in completed_tenders %}
-        <a class="card-comp shadow card-block mx-2" style="min-width: 300px; text-decoration:none;" href="{% if request.user.is_authenticated %}{% url 'vt' comptend.id %}{% else %}{% url 'ln' %}{% endif %}">
-          <h5>{{comptend.title}}</h6>
-          <div class="go-corner-comp">
-            <div class="go-arrow-comp">
+{% if completed_tenders %}
+  {% if request.user.is_superuser %}
+    <div class="container-fluid mt-4">
+      <div class="custom-heading">
+        <h4>Completed Tenders</h4>
+      </div>
+      <div class="d-flex flex-row flex-nowrap overflow-auto home-cscrollbar">
+        {% for comptend  in completed_tenders %}
+          <a class="card-comp shadow card-block mx-2" style="min-width: 300px; text-decoration:none;" href="{% if request.user.is_authenticated %}{% url 'vt' comptend.id %}{% else %}{% url 'ln' %}{% endif %}">
+            <h5>{{comptend.title}}</h6>
+            <div class="go-corner-comp">
+              <div class="go-arrow-comp">
+                →
+              </div>
+            </div>
+            <p class="mt-3 mb-0 text-muted text-sm">
+              <span class="text-nowrap"><i class="fa fa-clock-o"></i></span>
+              <span class="text-secondary mr-2">{{comptend.end_date_time}}</span>
+            </p>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
+
+<!-- Active Tenders -->
+{% if active_tenders %}
+  <div class="container-fluid mt-4">
+    <div class="custom-heading">
+      <h4>Active Tenders</h4>
+    </div>
+    <div class="d-flex flex-row flex-nowrap overflow-auto home-cscrollbar">
+      {% for actend  in active_tenders %}
+        <a class="card-acti shadow card-block mx-2" style="min-width: 300px; text-decoration:none;" href="{% if request.user.is_authenticated %}{% url 'vt' actend.id %}{% else %}{% url 'ln' %}{% endif %}">
+          <h5>{{actend.title}}</h6>
+          <div class="go-corner-acti">
+            <div class="go-arrow-acti">
               →
             </div>
           </div>
           <p class="mt-3 mb-0 text-muted text-sm">
             <span class="text-nowrap"><i class="fa fa-clock-o"></i></span>
-            <span class="text-secondary mr-2">{{comptend.end_date_time}}</span>
+            <span class="text-danger mr-2">{{actend.end_date_time}}</span>
           </p>
         </a>
       {% endfor %}
     </div>
   </div>
-  <hr style="height:1.5px;border-width:0;color:gray;background-color:gray">
 {% endif %}
 
-<!-- Active Tenders -->
-<div class="container-fluid">
-  <h4>Active Tenders</h4>
-  <div class="d-flex flex-row flex-nowrap overflow-auto">
-    {% for actend  in active_tenders %}
-      <a class="card-acti shadow card-block mx-2" style="min-width: 300px; text-decoration:none;" href="{% if request.user.is_authenticated %}{% url 'vt' actend.id %}{% else %}{% url 'ln' %}{% endif %}">
-        <h5>{{actend.title}}</h6>
-        <div class="go-corner-acti">
-          <div class="go-arrow-acti">
-            →
-          </div>
-        </div>
-        <p class="mt-3 mb-0 text-muted text-sm">
-          <span class="text-nowrap"><i class="fa fa-clock-o"></i></span>
-          <span class="text-danger mr-2">{{actend.end_date_time}}</span>
-        </p>
-      </a>
-    {% endfor %}
-  </div>
-</div>
-
-<hr style="height:1.5px;border-width:0;color:gray;background-color:gray">
 
 <!-- Inactive Tenders -->
-<div class="container-fluid">
-  <h4>Inactive Tenders</h4>
-  <div class="d-flex flex-row flex-nowrap overflow-auto">
-    {% for intend  in inactive_tenders %}
-      <a class="card-inactive shadow card-block mx-2" style="min-width: 300px; text-decoration:none;" href="{% if request.user.is_authenticated %}{% url 'vt' intend.id %}{% else %}{% url 'ln' %}{% endif %}">
-        <h5>{{intend.title}}</h6>
-        <div class="go-corner-inactive">
-          <div class="go-arrow-inactive">
-            →
+{% if inactive_tenders %}
+  <div class="container-fluid mt-4">
+    <div class="custom-heading">
+      <h4>Inactive Tenders</h4>
+    </div>
+    <div class="d-flex flex-row flex-nowrap overflow-auto home-cscrollbar">
+      {% for intend  in inactive_tenders %}
+        <a class="card-inactive shadow card-block mx-2" style="min-width: 300px; text-decoration:none;" href="{% if request.user.is_authenticated %}{% url 'vt' intend.id %}{% else %}{% url 'ln' %}{% endif %}">
+          <h5>{{intend.title}}</h6>
+          <div class="go-corner-inactive">
+            <div class="go-arrow-inactive">
+              →
+            </div>
           </div>
-        </div>
-        <p class="mt-3 mb-0 text-muted text-sm">
-          <span class="text-nowrap"><i class="fa fa-clock-o"></i></span>
-          <span class="text-success mr-2">{{intend.start_date_time}}</span>
-        </p>
-      </a>
-    {% endfor %}
+          <p class="mt-3 mb-0 text-muted text-sm">
+            <span class="text-nowrap"><i class="fa fa-clock-o"></i></span>
+            <span class="text-success mr-2">{{intend.start_date_time}}</span>
+          </p>
+        </a>
+      {% endfor %}
+    </div>
   </div>
-</div>
+{% endif %}
 
-<hr style="height:1.5px;border-width:0;color:gray;background-color:gray">
 
 <!-- Key Submission Tenders -->
-<div class="container-fluid">
-  <h4>Key Submission Tenders</h4>
-  <div class="d-flex flex-row flex-nowrap overflow-auto">
-    {% for ktend  in keysubmission_tenders %}
-      <a class="card-ksub shadow card-block mx-2" style="min-width: 300px; text-decoration:none;" href="{% if request.user.is_authenticated %}{% url 'vt' ktend.id %}{% else %}{% url 'ln' %}{% endif %}">
-        <h5>{{ktend.title}}</h6>
-        <div class="go-corner-ksub">
-          <div class="go-arrow-ksub">
-            →
+{% if keysubmission_tenders %}
+  <div class="container-fluid mt-4">
+    <div class="custom-heading">
+      <h4>Key Submission Tenders</h4>
+    </div>
+    <div class="d-flex flex-row flex-nowrap overflow-auto home-cscrollbar">
+      {% for ktend  in keysubmission_tenders %}
+        <a class="card-ksub shadow card-block mx-2" style="min-width: 300px; text-decoration:none;" href="{% if request.user.is_authenticated %}{% url 'vt' ktend.id %}{% else %}{% url 'ln' %}{% endif %}">
+          <h5>{{ktend.title}}</h6>
+          <div class="go-corner-ksub">
+            <div class="go-arrow-ksub">
+              →
+            </div>
           </div>
-        </div>
-        <p class="mt-3 mb-0 text-muted text-sm">
-          <span class="text-nowrap"><i class="fa fa-clock-o"></i></span>
-          <span class="text-warning mr-2">{{ktend.end_date_time}}</span>
-        </p>
-      </a>
-    {% endfor %}
+          <p class="mt-3 mb-0 text-muted text-sm">
+            <span class="text-nowrap"><i class="fa fa-clock-o"></i></span>
+            <span class="text-warning mr-2">{{ktend.end_date_time}}</span>
+          </p>
+        </a>
+      {% endfor %}
+    </div>
   </div>
-</div>
+{% endif %}
+
 {% endblock %}
