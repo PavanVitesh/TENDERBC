@@ -3,7 +3,7 @@
 {% block title %}View Tender{% endblock %}
 {% block content %}
     <div class="container mt-4">
-        <div class="card col-md-7 mx-auto shadow-lg">
+        <div class="card col-md-8 mx-auto shadow-lg">
             <div class="card-body">
 
 
@@ -34,14 +34,43 @@
             </div>
         </div>
     </div>
+    
 
     {% if request.user.is_superuser %}
         {% if details.Status == "Completed" or details.Status == "Granted" %}
-            {% for bid in bids_submitted_to_this_tender %}
+            <!-- {% for bid in bids_submitted_to_this_tender %} -->
             <div class="container mt-4">
-                <div class="card col-md-7 mx-auto shadow-lg">
+                <div class="card col-md-8 mx-auto shadow-lg">
                     <div class="card-body">
-                        <h6>
+                        <table class="table">
+                            <tr>
+                                <th>Bid Document</th>
+                                <th>Submitted By</th>
+                                {% if details.Status == "Completed" %}
+                                    <th>Acccept/Reject</th>
+                                {% else %}
+                                    <th>Status</th>
+                                {% endif %}
+                            </tr>
+                            {% for bid in bids_submitted_to_this_tender %}
+                            <tr>
+                                <td><a href = "{% static bid.document.url %}" target="_blank">Click Here</a></td>
+                                <td><a href = "{%url 'pf' bid.bidder_id %}">{{bid.bidder_id}}</a></td>
+                                <td>
+                                    {% if bid.Status == "Accepted" %}
+                                    <span class="text-success">Accepted</span>
+                                    {% elif bid.Status == "Rejected" %}
+                                    <span class="text-danger">Rejected</span>
+                                    {% elif bid.Status == "Ignored" %}
+                                    <span class="text-warning">Ignored</span>
+                                    {% else %}
+                                    <a href="{% url 'ab' bid.id %}" class="btn btn-outline-success">Accept<i class="fa fa-check"></i></a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                        <!-- <h6>
                             <a href = "{% static bid.document.url %}" target="_blank">Click Here</a>
                             for bid document submitted by 
                             <a href = "{%url 'pf' bid.bidder_id %}">{{bid.bidder_id}}</a>
@@ -56,16 +85,16 @@
                                 <a href="{% url 'ab' bid.id %}" class="btn btn-outline-success">Accept<i class="fa fa-check"></i></a>
                                 {% endif %}
                             </div>
-                        </h6>
+                        </h6> -->
                     </div>
                 </div>
             </div>
-            {% endfor %}
+            <!-- {% endfor %} -->
         {% else %}
         <div class="container mt-4">
-            <div class="card col-md-7 mx-auto shadow-lg">
+            <div class="card col-md-8 mx-auto shadow-lg">
                 <div class="card-body">
-                    <h5>Submitted bids will be displayed here once the tender durtion is completed</h5>
+                    <h5>Submitted bids will be displayed once the tender duration is completed</h5>
                 </div>
             </div>
         </div>
@@ -73,7 +102,7 @@
     {% elif alreadysubmitted %}
         {% if details.Status == "Key Submission" %} 
             <div class="container mt-5">
-                <div class="card col-md-7 mx-auto shadow-lg">
+                <div class="card col-md-8 mx-auto shadow-lg">
                     <div class="card-body">
                         <h6>
                             <form method="post">
@@ -87,7 +116,7 @@
             </div>
         {% elif details.Status == "Completed" or details.Status == "Granted" %}
         <div class="container mt-5">
-            <div class="card col-md-7 mx-auto shadow-lg">
+            <div class="card col-md-8 mx-auto shadow-lg">
                 <div class="card-body">
                     <h6>
                         <a href = "{% static my_bid.document.url %}" target="_blank">Click Here</a>
@@ -105,7 +134,7 @@
         </div>
         {% else %}
         <div class="container mt-4">
-            <div class="card col-md-7 mx-auto shadow-lg">
+            <div class="card col-md-8 mx-auto shadow-lg">
                 <div class="card-body">
                     <h5>Your bid has been submitted successfully</h5>
                 </div>
@@ -130,7 +159,7 @@
     {% else %}
     {% if details.Status == 'Inactive'%}
     <div class="container mt-4">
-        <div class="card col-md-7 mx-auto shadow-lg">
+        <div class="card col-md-8 mx-auto shadow-lg">
             <div class="card-body">
                 <h5>Tender isn't started yet</h5>
             </div>
@@ -138,7 +167,7 @@
     </div>
     {% elif details.Status == 'Active'%}
     <div class="container mt-4">
-        <div class="card col-md-7 mx-auto shadow-lg">
+        <div class="card col-md-8 mx-auto shadow-lg">
             <div class="card-body">
                 <h5>Submit your BID document Here</h5>
                 <form method="post" enctype="multipart/form-data">
@@ -153,7 +182,7 @@
     </div>
     {% else %}
     <div class="container mt-4">
-        <div class="card col-md-7 mx-auto shadow-lg">
+        <div class="card col-md-8 mx-auto shadow-lg">
             <div class="card-body">
                 <h5>You have not submitted your bid for this tender</h5>
             </div>
