@@ -23,13 +23,14 @@ def encrypt_file(input_file_path: str, tender_id: str, bid_id: str) -> List[str]
         backend = default_backend()
         encryption_key = os.urandom(32)
         pdf_writer = PdfWriter()
-        pdf_file_path = fr'{os.getenv('BID_DOCUMENTS_PATH')}{input_file_path}'
+        pdf_file_path = fr'{os.getenv('BID_DOCUMENTS_PATH')}{input_file_path.replace(' ', '_')}'
         with open(pdf_file_path, 'rb') as file:
             pdf_reader = PdfReader(file)
             for page_num in range(len(pdf_reader.pages)):
                 pdf_writer.add_page(pdf_reader.pages[page_num])
             pdf_writer.encrypt(user_password=encryption_key.hex(), algorithm='AES-256')
         new_file_name =  str(tender_id) + '-' + str(bid_id) + '.pdf'
+        print("Passed2")
         encrypted_pdf_file_path = os.getenv('BID_DOCUMENTS_PATH') + new_file_name
         with open(encrypted_pdf_file_path, 'wb') as file:
             pdf_writer.write(file)
