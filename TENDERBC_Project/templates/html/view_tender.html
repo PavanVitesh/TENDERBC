@@ -52,10 +52,10 @@
                                     <th>Status</th>
                                 {% endif %}
                             </tr>
-                            {% for bid in bids_submitted_to_this_tender %}
+                            {% for bid,uname in zipped_bids %}
                             <tr>
                                 <td><a href = "{% static bid.document.url %}" target="_blank">Click Here</a></td>
-                                <td><a href = "{%url 'pf' bid.bidder_id %}">{{bid.bidder_id}}</a></td>
+                                <td><a href = "{%url 'pf' bid.bidder_id %}">{{uname}}</a></td>
                                 <td>
                                     {% if bid.Status == "Accepted" %}
                                     <span class="text-success">Accepted</span>

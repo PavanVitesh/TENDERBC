@@ -51,6 +51,8 @@ def Home(request):
 
 def Register(request):
     userform = UserForm()
+    icons = ['user-circle-o','envelope-o','phone','globe','id-card','map-marker','calendar','lock','lock']
+    zipped_data = zip(userform,icons)
     if request.method == 'POST':
         userform=UserForm(data=request.POST)
         if userform.is_valid():
@@ -60,7 +62,7 @@ def Register(request):
             return redirect('/login/')
         else:
             messages.error(request, userform.errors.popitem()[1][0])
-    return render(request,'html/register.html',{'userform':userform})
+    return render(request,'html/register.html',{"zipped_data":zipped_data})
 
 def Login(request):
     if request.method == 'POST':
@@ -158,11 +160,16 @@ def View_Tender(request,x):
                 except BaseException as e:
                     messages.error(request, e)
                     mail_service("Key submission Failed!", "Secret Key submission failed due to following error\n" + e, request.user.id)
+        return redirect('/')
                     
                 
     bidsubmission = BidForm()
     alreadysubmitted = False
     bids_submitted_to_this_tender = Bid.objects.filter(tender_id=x)
+    unames = []
+    for i in bids_submitted_to_this_tender:
+        unames.append(User.objects.get(id=i.bidder_id).username)
+    zipped_bids = zip(bids_submitted_to_this_tender,unames)
     if details.Status == 'Completed':
         tampered_bidder_ids = retreive_tender_dkeys_from_chain(x, list(Bid.objects.filter(tender_id=x).values_list('bidder_id', flat=True)))
         print("tampered ", tampered_bidder_ids)
@@ -180,7 +187,7 @@ def View_Tender(request,x):
             break
     if request.method == 'POST' and details.Status == 'Key Submission':
         return redirect('/ViewTender/'+str(x))
-    return render(request, 'html/view_tender.html', {'details':details,'bidsubmission':bidsubmission,'alreadysubmitted':alreadysubmitted,'bids_submitted_to_this_tender':bids_submitted_to_this_tender,'my_bid':my_bid, 'dkey':dkey})
+    return render(request, 'html/view_tender.html', {'details':details,'bidsubmission':bidsubmission,'alreadysubmitted':alreadysubmitted,'bids_submitted_to_this_tender':bids_submitted_to_this_tender,'my_bid':my_bid, 'dkey':dkey,'zipped_bids':zipped_bids})
 
 
 def Past_Tenders(request):
